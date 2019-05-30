@@ -14,9 +14,10 @@
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
 //The ctor is in charge of finding sectors inside the layer.
-MagGeoBuilderFromDDD::eLayer::eLayer(handles::const_iterator begin,
+eLayer::eLayer(handles::const_iterator begin,
 					handles::const_iterator end) :
   theVolumes(begin,end),
   mlayer(nullptr) 
@@ -32,7 +33,7 @@ MagGeoBuilderFromDDD::eLayer::eLayer(handles::const_iterator begin,
 //   }
 }
 
-MagGeoBuilderFromDDD::eLayer::~eLayer(){}
+eLayer::~eLayer(){}
 
 // double MagGeoBuilderFromDDD::eLayer::minR() const {
 //   // ASSUMPTION: a layer is only 1 volume thick (by construction). 
@@ -44,7 +45,7 @@ MagGeoBuilderFromDDD::eLayer::~eLayer(){}
 //   return theVolumes.front()->maxR();
 // }
 
-MagELayer * MagGeoBuilderFromDDD::eLayer::buildMagELayer() const {
+MagELayer * eLayer::buildMagELayer() const {
   if (mlayer==nullptr) {
     //FIXME not guaranteed that all volumes in layer have the same zmin
     // and zmax!

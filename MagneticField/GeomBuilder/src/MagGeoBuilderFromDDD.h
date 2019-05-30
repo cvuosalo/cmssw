@@ -92,20 +92,6 @@ private:
   // Perform simple sanity checks
   void testInside(handles & volumes);
 
-  // A layer of barrel volumes.
-  class bLayer;
-  // A sector of volumes in a layer.
-  class bSector;
-  // A rod of volumes in a sector.
-  class bRod;
-  // A slab of volumes in a rod.
-  class bSlab;
-  // A sector of endcap volumes.
-  class eSector;  
-  // A layer of volumes in an endcap sector.
-  class eLayer;
- 
-  
   // Extractors for precomputed_value_sort (to sort containers of volumeHandles). 
   struct ExtractZ;
   struct ExtractAbsZ;
@@ -129,7 +115,7 @@ private:
   std::map<int, double> theScalingFactors;
   const magneticfield::TableFileMap* theGridFiles; // Non-owned pointer assumed to be valid until build() is called 
 
-  static bool debug;
+  const bool debug;
 
 };
 #endif

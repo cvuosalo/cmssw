@@ -13,13 +13,15 @@
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 using namespace SurfaceOrientation;
+using namespace magneticfield;
 
-MagGeoBuilderFromDDD::bRod::~bRod(){}
+bRod::~bRod(){}
 
 //The ctor is in charge of finding slabs inside the rod.
-MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
-					handles::const_iterator end) :
+bRod::bRod(handles::const_iterator begin,
+					handles::const_iterator end, bool debugVal) :
   volumes(begin,end),
+  debug(debugVal),
   mrod(nullptr)
 {
   precomputed_value_sort(volumes.begin(), volumes.end(), ExtractZ());
@@ -30,7 +32,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   float zmax = volumes.back()->center().z()+resolution;
   ClusterizingHistogram  hisZ( int((zmax-zmin)/resolution) + 1, zmin, zmax);
 
-  if (MagGeoBuilderFromDDD::debug) std::cout << "     Z slabs: " << zmin << " " << zmax << std::endl;
+  if (debug) std::cout << "     Z slabs: " << zmin << " " << zmax << std::endl;
 
   handles::const_iterator first = volumes.begin();
   handles::const_iterator last = volumes.end();  
@@ -40,7 +42,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   }
   std::vector<float> zClust = hisZ.clusterize(resolution);
 
-  if (MagGeoBuilderFromDDD::debug) std::cout << "     Found " << zClust.size() << " clusters in Z, "
+  if (debug) std::cout << "     Found " << zClust.size() << " clusters in Z, "
 		  << " slabs: " << std::endl;
 
   handles::const_iterator slabStart = first;
@@ -49,7 +51,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   for (unsigned int i=0; i<zClust.size() - 1; ++i) {
     float zSepar = (zClust[i] + zClust[i+1])/2.f;
     while ((*separ)->center().z() < zSepar) ++separ;
-    if (MagGeoBuilderFromDDD::debug) {
+    if (debug) {
       std::cout << "     Slab at: " << zClust[i]
 	   << " elements: " << separ-slabStart << " unique volumes: ";
       volumeHandle::printUniqueNames(slabStart, separ);
@@ -59,7 +61,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
     slabStart = separ;
   }
   {
-    if (MagGeoBuilderFromDDD::debug) {
+    if (debug) {
       std::cout << "     Slab at: " << zClust.back() <<" elements: " << last-separ
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(separ,last);
@@ -74,14 +76,14 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   for (++i; i!= slabs.end(); ++i) { 
     if(fabs(phimax - (*i).maxPhi()) > 0.001 ||
        fabs(phimin - (*i).minPhi()) > 0.001){
-      if (MagGeoBuilderFromDDD::debug) std::cout << "*** WARNING: slabs in this rod have different dphi!" <<std::endl;
+      if (debug) std::cout << "*** WARNING: slabs in this rod have different dphi!" <<std::endl;
     }
   }
 }
 
 
 
-MagBRod* MagGeoBuilderFromDDD::bRod::buildMagBRod() const{
+MagBRod* bRod::buildMagBRod() const{
   if (mrod==nullptr) {
     std::vector<MagBSlab*> mSlabs;
     for (std::vector<bSlab>::const_iterator slab = slabs.begin();

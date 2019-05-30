@@ -14,18 +14,20 @@
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 using namespace SurfaceOrientation;
+using namespace magneticfield;
 
 //The ctor is in charge of finding sectors inside the layer.
-MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
-					handles::const_iterator end) :
+bLayer::bLayer(handles::const_iterator begin,
+					handles::const_iterator end, bool debugFlag) :
   size(end-begin),
   theVolumes(begin,end),
+  debug(debugFlag),
   mlayer(nullptr) 
 {
   // Sort in phi
   precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractPhi());
   
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     std::cout << " elements: " << theVolumes.size() << " unique volumes: ";
     volumeHandle::printUniqueNames(theVolumes.begin(), theVolumes.end());
   }
@@ -51,7 +53,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
   if (size==1) { // Only one volume; this is the case for barrel
     // cylinders.
     // FIXME sectors.push_back(bSector(theVolumes.begin(),theVolumes.end());
-    if (MagGeoBuilderFromDDD::debug) std::cout <<"      Sector is just one volume." << std::endl;
+    if (debug) std::cout <<"      Sector is just one volume." << std::endl;
 
   } else if (size==12 || // In this case, each volume is a sector.
 	     (((*secBegin)->shape()!=DDSolidShape::ddtrap) && (*secBegin)->shape()!=DDSolidShape::ddbox)) {
@@ -60,7 +62,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
   }  else { // there are more than one volume per sector.
     float tolerance = 0.025; // 250 micron
     do {
-      if (MagGeoBuilderFromDDD::debug) std::cout << (*secBegin)->name 
+      if (debug) std::cout << (*secBegin)->name 
 				 << " " << (*secBegin)->copyno << std::endl;
       ++secBegin;
     } while ((secBegin != theVolumes.end()) &&
@@ -86,7 +88,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     }
   }
 
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     std::cout << "      First sector: volumes " << secEnd-theVolumes.begin()
 	 << " from " << newbegin
 	 << " (phi = " << (*secBegin)->center().phi() << ") "
@@ -107,40 +109,40 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     }
   }
 
-  if (MagGeoBuilderFromDDD::debug) std::cout << "-----------------------" << std::endl;
+  if (debug) std::cout << "-----------------------" << std::endl;
 
 }
 
-MagGeoBuilderFromDDD::bLayer::~bLayer(){}
+bLayer::~bLayer(){}
 
-int MagGeoBuilderFromDDD::bLayer::bin(int i) const {
+int bLayer::bin(int i) const {
   i = i%size;
   return (i>=0?i:i+size);
 }
 
-// const MagGeoBuilderFromDDD::bSector &
-// MagGeoBuilderFromDDD::bLayer::sector(int i) const {
+// const bSector &
+// bLayer::sector(int i) const {
 //   i = i%12;
 //   return sectors[i>=0?i:i+12];
 // }
 
 
-double MagGeoBuilderFromDDD::bLayer::minR() const {
+double bLayer::minR() const {
   // ASSUMPTION: a layer is only 1 volume thick (by construction). 
   return theVolumes.front()->minR();
 }
 
-// double MagGeoBuilderFromDDD::bLayer::maxR() const {
+// double bLayer::maxR() const {
 //   // ASSUMPTION: a layer is only 1 volume thick (by construction). 
 //   return theVolumes.front()->maxR();
 // }
 
-MagBLayer * MagGeoBuilderFromDDD::bLayer::buildMagBLayer() const {
+MagBLayer * bLayer::buildMagBLayer() const {
   if (mlayer==nullptr) {
 
     // If we have only one volume, do not build any MagBSector.
     if (sectors.empty()) {
-      if (MagGeoBuilderFromDDD::debug && size!=0) {
+      if (debug && size!=0) {
 	std::cout << "ERROR: bLayer::buildMagBLayer, 0 sectors but "
 	     << size << " volumes" << std::endl;
       }

@@ -13,11 +13,13 @@
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
-MagGeoBuilderFromDDD::bSlab::~bSlab(){}
+bSlab::~bSlab(){}
 
-MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end) :
+bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end, bool debugVal) :
   volumes(begin, end),
+  debug(debugVal),
   mslab(nullptr)
 {
   if (volumes.size() > 1) {
@@ -25,7 +27,7 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
     precomputed_value_sort(volumes.begin(), volumes.end(),
 			   ExtractPhiMax(), LessDPhi());
 
-  if (MagGeoBuilderFromDDD::debug) cout << "        Slab has " << volumes.size()
+  if (debug) cout << "        Slab has " << volumes.size()
 		  << " volumes" << endl;
 
     // Check that all volumes have the same dZ
@@ -36,7 +38,7 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
       const float epsilon = 0.001;      
       if (fabs(Zmax - (*i)->surface(zplus).position().z()) > epsilon ||
 	  fabs(Zmin - (*i)->surface(zminus).position().z()) > epsilon) {
-	if (MagGeoBuilderFromDDD::debug) cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
+	if (debug) cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
 			<< fabs(Zmax - (*i)->surface(zplus).position().z())
 			<< " D_Zmin = " 
 			<< fabs(Zmin - (*i)->surface(zminus).position().z())
@@ -46,16 +48,16 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
   }
 }
 
-Geom::Phi<float> MagGeoBuilderFromDDD::bSlab::minPhi() const {
+Geom::Phi<float> bSlab::minPhi() const {
   return volumes.front()->minPhi();
 }
 
-Geom::Phi<float>  MagGeoBuilderFromDDD::bSlab::maxPhi() const {
+Geom::Phi<float>  bSlab::maxPhi() const {
   return volumes.back()->maxPhi();
 }
 
 
-MagBSlab * MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
+MagBSlab * bSlab::buildMagBSlab() const {
   if (mslab==nullptr) {
     vector<MagVolume*> mVols;
     for (handles::const_iterator vol = volumes.begin();

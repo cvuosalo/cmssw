@@ -16,11 +16,13 @@
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
 // The ctor is in charge of finding layers inside the sector.
-MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
-				       handles::const_iterator end) :
+eSector(handles::const_iterator begin,
+				       handles::const_iterator end, bool debugFlag) :
   theVolumes(begin,end),
+  debug(debugFlag),
   msector(nullptr)
 {
   //FIXME!!!
@@ -76,10 +78,10 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
 }
 
 
-MagGeoBuilderFromDDD::eSector::~eSector(){}
+~eSector(){}
 
 
-MagESector* MagGeoBuilderFromDDD::eSector::buildMagESector() const{
+MagESector* buildMagESector() const{
   if (msector==nullptr) {
     vector<MagELayer*> mLayers;
     for (vector<eLayer>::const_iterator lay = layers.begin();

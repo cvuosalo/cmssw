@@ -17,24 +17,26 @@
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
 
 // Default ctor needed to have arrays.
-MagGeoBuilderFromDDD::bSector::bSector(){}
+bSector::bSector(){}
 
-MagGeoBuilderFromDDD::bSector::~bSector(){}
+bSector::~bSector(){}
 
 // The ctor is in charge of finding rods inside the sector.
-MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
-					handles::const_iterator end) :
+bSector::bSector(handles::const_iterator begin,
+					handles::const_iterator end, bool debugVal) :
   volumes(begin,end),
+  debug(debugVal),
   msector(nullptr)
 {
-  if (MagGeoBuilderFromDDD::debug) cout << "   Sector at Phi  " <<  volumes.front()->center().phi() << " " 
+  if (debug) cout << "   Sector at Phi  " <<  volumes.front()->center().phi() << " " 
 		  << volumes.back()->center().phi() <<  endl;
 
   if (volumes.size() == 1) {
-    if (MagGeoBuilderFromDDD::debug) { 
+    if (debug) { 
       cout << "   Rod at: 0 elements: " << end-begin
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(begin,end);
@@ -68,7 +70,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
     }
     vector<float> phiClust = hisPhi.clusterize(resolution);
 
-    if (MagGeoBuilderFromDDD::debug) cout << "     Found " << phiClust.size() << " clusters in Phi, "
+    if (debug) cout << "     Found " << phiClust.size() << " clusters in Phi, "
 		    << " rods: " << endl;
 
     handles::const_iterator rodStart = first;
@@ -85,11 +87,11 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
       } else {
 	phiSepar = phiMax;
       }
-      if (MagGeoBuilderFromDDD::debug) cout << "       cluster " << i
+      if (debug) cout << "       cluster " << i
 		      << " phisepar " << phiSepar <<endl;
       while (separ < last && (*separ)->maxPhi()-phi0 < phiSepar ) {
 	DZ1 += ((*separ)->maxZ() - (*separ)->minZ());
- 	if (MagGeoBuilderFromDDD::debug) cout << "         " << (*separ)->name << " "
+ 	if (debug) cout << "         " << (*separ)->name << " "
 			<< (*separ)->maxPhi()-phi0  << " "
 			<< (*separ)->maxZ() << " " << (*separ)->minZ() << " "
 			<< DZ1 << endl;
@@ -99,12 +101,12 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
       // FIXME: print warning for small discrepancies. Tolerance (below)
       // had to be increased since discrepancies sum to up to ~ 2 mm.
       if (fabs(DZ-DZ1) > 0.001 && fabs(DZ-DZ1) < 0.5) {
-	if (MagGeoBuilderFromDDD::debug) cout << "*** WARNING: Z lenght mismatch by " << DZ-DZ1
+	if (debug) cout << "*** WARNING: Z lenght mismatch by " << DZ-DZ1
 			<< " " << DZ << " " << DZ1 << endl;
 
       }
       if (fabs(DZ-DZ1) > 0.25 ) { // FIXME hardcoded tolerance
-	if (MagGeoBuilderFromDDD::debug) cout << "       Incomplete, use also next cluster: " 
+	if (debug) cout << "       Incomplete, use also next cluster: " 
 			<< DZ << " " << DZ1 << " " << DZ-DZ1 << endl;
 	DZ1 = 0.;
 	continue;
@@ -113,7 +115,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 	volumeHandle::printUniqueNames(rodStart, separ);
 	DZ1 = 0.;
       } else {
-	if (MagGeoBuilderFromDDD::debug) {
+	if (debug) {
 	  cout << "       Rod at: " << phiClust[i] <<" elements: "
 	       << separ-rodStart << " unique volumes: ";
 	  volumeHandle::printUniqueNames(rodStart, separ);
@@ -126,13 +128,13 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
     }
     
     if (rods.empty()) cout << " *** ERROR: bSector has no rods " << DZ << " " << DZ1 << endl;
-    if (MagGeoBuilderFromDDD::debug) cout << "-----------------------" << endl;
+    if (debug) cout << "-----------------------" << endl;
 
   }
 }
 
 
-MagBSector* MagGeoBuilderFromDDD::bSector::buildMagBSector() const{
+MagBSector* bSector::buildMagBSector() const{
   if (msector==nullptr) {
     vector<MagBRod*> mRods;
     for (vector<bRod>::const_iterator rod = rods.begin();
