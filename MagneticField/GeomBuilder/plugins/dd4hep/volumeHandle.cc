@@ -6,12 +6,14 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
+#include "MagneticField/GeomBuilder/plugins/dd4hep/volumeHandle.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -26,28 +28,42 @@
 using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
+using namespace cms;
+using namespace ddcms;
+using namespace edm;
+using namespace math;
+
+
+static void buildBox();
+static void buildCons();  
+static void buildPseudoTrap();
+static void buildTrap();
+static void buildTubs();  
+static void buildTruncTubs();
 
 
 volumeHandle::~volumeHandle(){
-  delete refPlane;
+  if (refPlane != nullptr)
+    delete refPlane;
 }
 
 volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal)
-  : name(fv.volume().volume().name()),
-    copyno(fv.volume().copyNumber()),
+  : name(fv.name()),
+    copyno(fv.copyNum()),
+    shape(getCurrentShape(fv)),
     magVolume(nullptr),
     masterSector(1),
     theRN(0.),
     theRMin(0.),
     theRMax(0.),
     refPlane(nullptr),
-    solid(fv.volume().volume().solid()),
     expand(expand2Pi),
-    isIronFlag(false)
+    isIronFlag(false),
+    debug(debugVal)
 {
   Double_t transArray[3];
   for (int index = 0; index < 3; ++index) {
-    transArray[index] = convertMmToCm(fv.trans()[index]);
+    transArray[index] = geant_units::operators::convertMmToCm(fv.trans()[index]);
   }
   center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
 
@@ -59,105 +75,56 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
   for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
   }
-  if (debug) {  
-    cout.precision(7);
-  }
   referencePlane(fv);
-  if (solid.shape() == DDSolidShape::ddbox) {
+  switch (shape) {
+  case Shape::Box :
     buildBox();
-  } else if (solid.shape() == DDSolidShape::ddtrap) {
+    break;
+  case Shape::Trapezoid :
     buildTrap();
-  } else if (solid.shape() == DDSolidShape::ddcons) {
+    break;
+  case Shape::Cone :
     buildCons();
-  } else if (solid.shape() == DDSolidShape::ddtubs) {   
+    break;
+  case Shape::Tube :
     buildTubs();
-  } else if (solid.shape() == DDSolidShape::ddpseudotrap) {   
-    buildPseudoTrap();
-  } else if (solid.shape() == DDSolidShape::ddtrunctubs) {   
+    break;
+  case Shape::CutTube :
     buildTruncTubs();
-  } else {
-    LogWarning("magneticfield::volumeHandle") << "ctor: Unexpected solid: " << solid.shape();
+    break;
+  case Shape::PseudoTrapezoid :
+    buildPseudoTrap();
+    break;
+  default:
+    LogWarning("magneticfield::volumeHandle") << "ctor: Unexpected shape for vol " << name;
   }
-
-
-  // NOTE: Table name and master sector are no longer taken from xml!
-//   DDsvalues_type sv(fv.mergedSpecifics());
-    
-//   { // Extract the name of associated field file.
-//     std::vector<std::string> temp;
-//     std::string pname = "table";
-//     DDValue val(pname);
-//     DDsvalues_type sv(fv.mergedSpecifics());
-//     if (DDfetch(&sv,val)) {
-//       temp = val.strings();
-//       if (temp.size() != 1) {
-// 	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
-//       }
-//       magFile = temp[0];
-
-//       string find="[copyNo]";
-//       std::size_t j;
-//       for ( ; (j = magFile.find(find)) != string::npos ; ) {
-// 	stringstream conv;
-// 	conv << setfill('0') << setw(2) << copyno;
-// 	string repl;
-// 	conv >> repl;
-// 	magFile.replace(j, find.length(), repl);
-//       }
-      
-//     } else {
-//       cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
-//       cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
-//     }
-//   }
-
-//   { // Extract the number of the master sector.
-//     std::vector<double> temp;
-//     const std::string pname = "masterSector";
-//     DDValue val(pname);
-//     if (DDfetch(&sv,val)) {
-//       temp = val.doubles();
-//       if (temp.size() != 1) {
-//  	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
-//       }
-//       masterSector = int(temp[0]+.5);
-//     } else {
-//       if (debug) { 
-// 	cout << "Volume does not have a SpecPar " << pname 
-// 	     << " using: " << copyno << endl;
-// 	cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
-//       }
-//       masterSector = copyno;
-//     }  
-//   }
   
   // Get material for this volume
-  if (fv.logicalPart().material().name().name() == "Iron") isIronFlag=true;  
+  if (fv.materialName() == "Iron") isIronFlag = true;  
 
 
   if (debug) {  
-    cout << " RMin =  " << theRMin <<endl;
-    cout << " RMax =  " << theRMax <<endl;
+    LogDebug("magneticfield::volumeHandle") << " RMin =  " << theRMin;
+    LogDebug("magneticfield::volumeHandle") << " RMax =  " << theRMax;
       
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN) 
-      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << DDSolidShapesName::name(shape()) << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
 
-    cout << "Summary: " << name << " " << copyno
-	 << " Shape= " << DDSolidShapesName::name(shape())
-	 << " trasl " << center()
-	 << " R " << center().perp()
-	 << " phi " << center().phi()
-	 << " magFile " << magFile
-	 << " Material= " << fv.logicalPart().material().name()
-	 << " isIron= " << isIronFlag
-	 << " masterSector= " << masterSector << std::endl;
+    LogDebug("magneticfield::volumeHandle") << "Summary: " << name << " " << copyno
+     << " Shape= " << shape
+     << " trasl " << center()
+     << " R " << center().perp()
+     << " phi " << center().phi()
+     << " magFile " << magFile
+     << " Material= " << fv.materialName()
+     << " isIron= " << isIronFlag
+     << " masterSector= " << masterSector << std::endl;
 
-    cout << " Orientation of surfaces:";
+    LogDebug("magneticfield::volumeHandle") << " Orientation of surfaces:";
     std::string sideName[3] =  {"positiveSide", "negativeSide", "onSurface"};
     for (int i=0; i<6; ++i) {    
-      cout << "  " << i << ":" << sideName[surfaces[i]->side(center_,0.3)];
+      LogDebug("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_,0.3)];
     }
-    cout << endl;
   }
 }
 
@@ -166,7 +133,7 @@ const Surface::GlobalPoint & volumeHandle::center() const {
   return center_;
 }
 
-void volumeHandle::referencePlane(const DDExpandedView &fv){
+void volumeHandle::referencePlane(const DDFilteredView &fv){
   // The refPlane is the "main plane" for the solid. It corresponds to the 
   // x,y plane in the DDD local frame, and defines a frame where the local
   // coordinates are the same as in DDD. 
@@ -199,39 +166,41 @@ void volumeHandle::referencePlane(const DDExpandedView &fv){
   Surface::PositionType & posResult = center_;
 
   // The reference plane rotation
-  DD3Vector x, y, z;
-  fv.rotation().GetComponents(x,y,z);
+  // DD3Vector x, y, z;
+  XYZPoint x, y, z;
+  RotationMatrix refRot;
+  fv.rot(refRot);
+  // fv.rotation().GetComponents(x,y,z);
+  refRot.GetComponents(x, y, z);
   if (debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
-      cout << "*** WARNING: Rotation is not RH "<< endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: Rotation is not RH ";
     }
   }
   
   // The global rotation
   Surface::RotationType
-    rotResult(float(x.X()),float(x.Y()),float(x.Z()),
-	      float(y.X()),float(y.Y()),float(y.Z()),
-	      float(z.X()),float(z.Y()),float(z.Z()));
+    rotResult(float(x.X()), float(x.Y()), float(x.Z()),
+	      float(y.X()), float(y.Y()), float(y.Z()),
+	      float(z.X()), float(z.Y()), float(z.Z()));
 
   refPlane = new GloballyPositioned<float>(posResult, rotResult);
 
   // Check correct orientation
   if (debug) {
-
-    cout << "Refplane pos  " << refPlane->position() << endl;
+    LogDebug("magneticfield::volumeHandle") << "Refplane pos  " << refPlane->position();
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z 
-    if (solid.shape() == DDSolidShape::ddpseudotrap) {
+    if (getCurrentShape() == Shape::PseudoTrapezoid) {
       globalZdir = LocalVector(0.,1.,0.);    
     }
     if (refPlane->toGlobal(globalZdir).z()<0.) {
       globalZdir=-globalZdir;
     }
-
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0,0,1));
-    if (chk < .999) cout << "*** WARNING RefPlane check failed!***"
-			 << chk << endl; 
+    if (chk < .999) LogDebug("magneticfield::volumeHandle") << "*** WARNING RefPlane check failed!***"
+			 << chk; 
   }
 }
 
@@ -269,25 +238,24 @@ void volumeHandle::buildPhiZSurf(double startPhi,
   surfaces[zminus]   = new Plane(pos_zminus, rot_Z);
   surfaces[phiplus]  = new Plane(pos_phiplus, rot_phiplus);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);  
-  
+
   if (debug) {
-    cout << "Actual Center at: " << center_ << " R " << center_.perp()
-	 << " phi " << center_.phi() << endl;
-    cout << "RN            " << theRN << endl;
+    LogDebug("magneticfield::volumeHandle") << "Actual Center at: " << center_ << " R " << center_.perp()
+      << " phi " << center_.phi();
+    LogDebug("magneticfield::volumeHandle") << "RN            " << theRN << endl;
+    LogDebug("magneticfield::volumeHandle") << "pos_zplus    " << pos_zplus << " "
+      << pos_zplus.perp() << " " << pos_zplus.phi() << endl
+      << "pos_zminus   " << pos_zminus << " "
+      << pos_zminus.perp() << " " << pos_zminus.phi() << endl
+      << "pos_phiplus  " << pos_phiplus << " "
+      << pos_phiplus.perp() << " " << pos_phiplus.phi() <<endl
+      << "pos_phiminus " << pos_phiminus << " "
+      << pos_phiminus.perp() << " " << pos_phiminus.phi() <<endl;
 
-    cout << "pos_zplus    " << pos_zplus << " "
-	 << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-	 << "pos_zminus   " << pos_zminus << " "
-	 << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-	 << "pos_phiplus  " << pos_phiplus << " "
-	 << pos_phiplus.perp() << " " << pos_phiplus.phi() <<endl
-	 << "pos_phiminus " << pos_phiminus << " "
-	 << pos_phiminus.perp() << " " << pos_phiminus.phi() <<endl;
+    LogDebug("magneticfield::volumeHandle") << "y_phiplus " << y_phiplus << endl;
+    LogDebug("magneticfield::volumeHandle") << "y_phiminus " << y_phiminus << endl;
 
-    cout << "y_phiplus " << y_phiplus << endl;
-    cout << "y_phiminus " << y_phiminus << endl;
-
-    cout << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0.,0.,1.)) << endl
+    LogDebug("magneticfield::volumeHandle") << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0.,0.,1.)) << endl
 	 << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0.,0.,1.))
 	 << " phi " << surfaces[phiplus]->toGlobal(LocalVector(0.,0.,1.)).phi()
 	 << endl
@@ -299,10 +267,10 @@ void volumeHandle::buildPhiZSurf(double startPhi,
 //   // Check ordering.
   if (debug) {
     if (pos_zplus.z() < pos_zminus.z()) {
-      cout << "*** WARNING: pos_zplus < pos_zminus " << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus " << endl;
     }
     if (Geom::Phi<float>(pos_phiplus.phi()-pos_phiminus.phi()) < 0. ) {
-      cout << "*** WARNING: pos_phiplus < pos_phiminus " << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus " << endl;
     }
   }
 }
@@ -313,7 +281,7 @@ bool volumeHandle::sameSurface(const Surface & s1, Sides which_side, float toler
 {
   //Check for null comparison
   if (&s1==(surfaces[which_side]).get()){
-    if (debug) cout << "      sameSurface: OK (same ptr)" << endl;
+    if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: OK (same ptr)" << endl;
     return true;
   }
 
@@ -325,18 +293,18 @@ bool volumeHandle::sameSurface(const Surface & s1, Sides which_side, float toler
   if (p1!=nullptr) {
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
     if (p2==nullptr) {
-      if (debug) cout << "      sameSurface: different types" << endl;
+      if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: different types" << endl;
       return false;
     }
     
     if ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt)
 	 && (fabs((p1->toLocal(p2->position())).z()) < tolerance) ) {
-      if (debug) cout << "      sameSurface: OK "
+      if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: OK "
 		      << fabs(p1->normalVector().dot(p2->normalVector()))
 		      << " " << fabs((p1->toLocal(p2->position())).z()) << endl;
       return true;
     } else{
-      if (debug) cout << "      sameSurface: not the same: "
+      if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: not the same: "
 		      << p1->normalVector() << p1->position() << endl
 		      << "                                 "
 		      << p2->normalVector() << p2->position() << endl
@@ -351,7 +319,7 @@ bool volumeHandle::sameSurface(const Surface & s1, Sides which_side, float toler
   if (cy1!=nullptr) {
     const Cylinder * cy2 = dynamic_cast<const Cylinder*>(&s2);
     if (cy2==nullptr) {
-      if (debug) cout << "      sameSurface: different types" << endl;
+      if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: different types" << endl;
       return false;
     }
     // Assume axis is the same!
@@ -367,19 +335,19 @@ bool volumeHandle::sameSurface(const Surface & s1, Sides which_side, float toler
   if (co1!=nullptr) {
     const Cone * co2 = dynamic_cast<const Cone*>(&s2);
     if (co2==nullptr) {
-      if (debug) cout << "      sameSurface: different types" << endl;
+      if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: different types" << endl;
       return false;
     }
     // FIXME
-    if (fabs(co1->openingAngle()-co2->openingAngle()) < maxtilt 
-	&& (co1->vertex()-co2->vertex()).mag() < tolerance) {
+    if (std::abs(co1->openingAngle()-co2->openingAngle()) < maxtilt 
+        && (co1->vertex()-co2->vertex()).mag() < tolerance) {
       return true;
     } else {
       return false;
     }
   }
 
-  if (debug) cout << "      sameSurface: unknown surfaces..." << endl;
+  if (debug) LogDebug("magneticfield::volumeHandle") << "      sameSurface: unknown surfaces..." << endl;
   return false;
 }
 
@@ -394,13 +362,13 @@ bool volumeHandle::setSurface(const Surface & s1, Sides which_side)
   }
 
   if (!sameSurface(s1,which_side)){
-    cout << "***ERROR: setSurface: trying to assign a surface that does not match destination surface. Skipping." << endl;    
+    LogDebug("magneticfield::volumeHandle") << "***ERROR: setSurface: trying to assign a surface that does not match destination surface. Skipping." << endl;    
     const Surface & s2 = *(surfaces[which_side]);
     //FIXME: Just planes for the time being!!!
     const Plane * p1 = dynamic_cast<const Plane*>(&s1);
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
     if (p1!=nullptr && p2 !=nullptr) 
-      cout << p1->normalVector() << p1->position() << endl
+      LogDebug("magneticfield::volumeHandle") << p1->normalVector() << p1->position() << endl
 	   << p2->normalVector() << p2->position() << endl;
     return false;
   }
@@ -408,13 +376,13 @@ bool volumeHandle::setSurface(const Surface & s1, Sides which_side)
 
   if (isAssigned[which_side]) {
     if (&s1!=(surfaces[which_side]).get()){
-      cout << "*** WARNING volumeHandle::setSurface: trying to reassign a surface to a different surface instance" << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING volumeHandle::setSurface: trying to reassign a surface to a different surface instance" << endl;
       return false;
     }
   } else {
     surfaces[which_side] = &s1;
     isAssigned[which_side] = true;
-    if (debug) cout << "     Volume " << name << " # " << copyno << " Assigned: " << (int) which_side << endl;
+    if (debug) LogDebug("magneticfield::volumeHandle") << "     Volume " << name << " # " << copyno << " Assigned: " << (int) which_side << endl;
     return true;
   }
 
@@ -446,7 +414,7 @@ volumeHandle::sides() const{
     if (expand && (i==phiplus || i==phiminus)) continue;
 
     // FIXME: Skip null inner degenerate cylindrical surface
-    if (solid.shape() == DDSolidShape::ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
+    if (shape == Shape::Tube && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
 
     ReferenceCountingPointer<Surface> s = const_cast<Surface*> (surfaces[i].get());
     result.push_back(VolumeSide(s, GlobalFace(i),
@@ -467,13 +435,13 @@ void volumeHandle::printUniqueNames(handles::const_iterator begin, handles::cons
     if (uniq) {
       std::vector<std::string>::iterator i = unique(names.begin(),names.end());
       int nvols = int(i - names.begin());
-      cout << nvols << " ";
-      copy(names.begin(), i, ostream_iterator<std::string>(cout, " "));
+      LogDebug("magneticfield::volumeHandle") << nvols << " ";
+      copy(names.begin(), i, ostream_iterator<std::string>(LogDebug("magneticfield::volumeHandle"), " "));
     } else {
-      cout << names.size() << " ";
-      copy(names.begin(), names.end(), ostream_iterator<std::string>(cout, " "));
+      LogDebug("magneticfield::volumeHandle") << names.size() << " ";
+      copy(names.begin(), names.end(), ostream_iterator<std::string>(LogDebug("magneticfield::volumeHandle"), " "));
     }
-    cout << endl;
+    LogDebug("magneticfield::volumeHandle") << endl;
 }
 
 

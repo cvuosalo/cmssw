@@ -6,8 +6,8 @@
 
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
-void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug) cout << "Building cons surfaces...: " <<endl;
+static void buildCons() {
+  LogDebug("magneticfield::volumeHandle") << "Building cons surfaces...: " <<endl;
   
   DDCons cons(solid);
   
@@ -19,7 +19,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
   double startPhi   = cons.phiFrom();
   double deltaPhi   = cons.deltaPhi();
 
-  if (MagGeoBuilderFromDDD::debug) cout << "zhalf      " << zhalf      << endl
+  LogDebug("magneticfield::volumeHandle") << "zhalf      " << zhalf      << endl
 		  << "rInMinusZ  " << rInMinusZ  << endl
 		  << "rOutMinusZ " << rOutMinusZ << endl
 		  << "rInPlusZ   " << rInPlusZ   << endl
@@ -39,7 +39,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
   
   const double epsilon = 1e-5;
 
-  if (abs(rInPlusZ-rInMinusZ)<epsilon) { // Cylinder
+  if (std::abs(rInPlusZ-rInMinusZ)<epsilon) { // Cylinder
     // FIXME: use builder
     surfaces[inner] = new Cylinder(rInMinusZ, Surface::PositionType(),
 				      Surface::RotationType());
@@ -55,13 +55,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
 				  cb.vertex(),
 				  cb.openingAngle());
   }
-  
-
-  if (abs(rOutPlusZ-rOutMinusZ)<epsilon) { // Cylinder
+  if (std::abs(rOutPlusZ-rOutMinusZ)<epsilon) { // Cylinder
     surfaces[outer] = new Cylinder(rOutMinusZ, Surface::PositionType(0,0,center_.z()),
 				      Surface::RotationType());
-				  
-    
   } else { // Cone
     // FIXME: trick to compute vertex and angle...
     SimpleConeBounds cb(center_.z()-zhalf, rOutMinusZ, rOutMinusZ,
@@ -72,22 +68,11 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
 				  cb.vertex(),
 				  cb.openingAngle());
 
-    if (MagGeoBuilderFromDDD::debug) cout << "Outer surface: cone, vtx: " <<  cb.vertex()
+    LogDebug("magneticfield::volumeHandle") << "Outer surface: cone, vtx: " <<  cb.vertex()
 				<< " angle " << cb.openingAngle() << endl;
-
-//     cout << (cb.vertex().z()-center_.z()-zhalf) *tan(cb.openingAngle()) << endl;
-//     cout << (cb.vertex().z()-center_.z()+zhalf) *tan(cb.openingAngle()) << endl;
-
   }
-
   // All other surfaces
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);  
-
-  // Check ordering. //FIXME
-//   if (dynamic_cast<const BoundCone*>(&(*surfaces[outer]))->bounds().width() <
-//       dynamic_cast<const BoundCone*>(&(*surfaces[inner]))->bounds().width()){
-//     cout << "*** WARNING: pos_outer < pos_inner " << endl;
-//   }
 
   // Save volume boundaries
   theRMin = min(rInMinusZ, rInPlusZ);

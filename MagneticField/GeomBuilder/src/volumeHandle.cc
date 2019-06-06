@@ -482,6 +482,8 @@ void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterato
     cout << endl;
 }
 
+// Allow build... functions access to debug flag.
+using MagGeoBuilderFromDDD::debug;
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"
 #include "MagneticField/GeomBuilder/src/buildTrap.icc"

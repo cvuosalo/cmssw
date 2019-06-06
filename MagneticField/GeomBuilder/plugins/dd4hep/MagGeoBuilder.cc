@@ -88,26 +88,29 @@ void MagGeoBuilder::summary(handles & volumes){
   handles::const_iterator first = volumes.begin();
   handles::const_iterator last = volumes.end();
 
-  for (handles::const_iterator i=first; i!=last; ++i){
-    if (int((*i)->shape())>4) continue; // FIXME: implement test for missing shapes...
-    for (int side = 0; side < 6; ++side) {
-      int references = 	(*i)->references(side);
-      if ((*i)->isPlaneMatched(side)) {
-	++iassigned;
-	bool firstOcc = (ptrs.insert(&((*i)->surface(side)))).second;
-	if (firstOcc) iref_ass+=references;
-	if (references<2){  
-	  LogDebug("MagGeoBuilder") << "*** Only 1 ref, vol: " << (*i)->volumeno << " # "
-	       << (*i)->copyno << " side: " << side << endl;
-	}	
-      } else {
-	iref_nass+=references;
-	if (references>1){
-	  LogDebug("MagGeoBuilder") << "*** Ref_nass >1 " <<endl;
-	}
+  for (handles::const_iterator i=first; i!=last; ++i) {
+    Shape theShape = (*i)->shape;
+    if (theShape == Shape::Box || theShape == Shape::Cone || theShape == Shape::Trapezoid
+        || theShape == Shape::Tube) {
+      for (int side = 0; side < 6; ++side) {
+        int references = 	(*i)->references(side);
+        if ((*i)->isPlaneMatched(side)) {
+          ++iassigned;
+          bool firstOcc = (ptrs.insert(&((*i)->surface(side)))).second;
+          if (firstOcc) iref_ass+=references;
+          if (references<2){  
+            LogDebug("MagGeoBuilder") << "*** Only 1 ref, vol: " << (*i)->volumeno << " # "
+             << (*i)->copyno << " side: " << side << endl;
+          }	
+        } else {
+          iref_nass+=references;
+          if (references>1){
+            LogDebug("MagGeoBuilder") << "*** Ref_nass >1 " <<endl;
+          }
+        }
       }
-    }
-  }
+    } // end if theShape
+  } // end for
   iunique = ptrs.size();
 
   LogDebug("MagGeoBuilder") << "    volumes   " << ivolumes  << endl
@@ -134,15 +137,15 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs)
   int eVolCount = 0;
 
   const string magfStr {"MAGF"};
-  if (fv.volume().volume().name()!=magfStr) {
-     std::string topNodeName(fv.volume().volume().name());
+  if (fv.getCurrentName() != magfStr) {
+     std::string topNodeName(fv.getCurrentName());
 
      //see if one of the children is MAGF
      bool doSubDets = fv.firstChild();
      
      bool go = true;
      while(go && doSubDets) {
-      if (fv.volume().volume().name()==magfStr)
+      if (fv.getCurrentName() == magfStr)
          break;
       else
          go = fv.nextSibling();

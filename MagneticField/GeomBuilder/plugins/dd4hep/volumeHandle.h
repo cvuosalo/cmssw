@@ -13,6 +13,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 
 class MagVolume6Faces;
@@ -30,7 +31,7 @@ namespace magneticfield {
     typedef Surface::LocalPoint      LocalPoint;
     typedef Surface::LocalVector     LocalVector;
     typedef SurfaceOrientation::GlobalFace Sides;
-    volumeHandle(const DDFilteredView & fv, bool expand2Pi = false, bool debugVal = false);
+    volumeHandle(const cms::DDFilteredView & fv, bool expand2Pi = false, bool debugVal = false);
     ~volumeHandle();
 
     /// Return the center of the volume
@@ -71,6 +72,9 @@ namespace magneticfield {
 
     /// copy number
     unsigned short copyno;
+    
+    // Shape at initialization
+    const ddcms::Shape shape;
 
     /// Just for debugging...
     static void printUniqueNames(handles::const_iterator begin,
@@ -106,9 +110,6 @@ namespace magneticfield {
     /// Position and rotation
     const GloballyPositioned<float> * placement() const {return refPlane;}
 
-    /// Shape of the solid
-    ShapeType shape() const {return solid.shape();}
-
     /// The surfaces and they orientation, as required to build a MagVolume.
     std::vector<VolumeSide> sides() const;
 
@@ -136,25 +137,27 @@ namespace magneticfield {
     bool isAssigned[6];
 
     // initialise the refPlane
-    void referencePlane(const DDFilteredView &fv);
+    void referencePlane(const cms::DDFilteredView &fv);
 
+    // The following friend functions can be made member functions after
+    // the old DD is dropped.
     // Build the surfaces for a box
-    void buildBox();
+    friend void buildBox();
 
     // Build the surfaces for a trapezoid
-    void buildTrap();
+    friend void buildTrap();
 
     // Build the surfaces for a ddtubs shape
-    void buildTubs();  
+    friend void buildTubs();  
 
     // Build the surfaces for a ddcons shape
-    void buildCons();  
+    friend void buildCons();  
 
     // Build the surfaces for a ddpseudotrap shape
-    void buildPseudoTrap();
+    friend void buildPseudoTrap();
 
     // Build the surfaces for a ddtrunctubs shape
-    void buildTruncTubs();
+    friend void buildTruncTubs();
 
     // Build phi, z surfaces (common for ddtubs and ddcons)
     void buildPhiZSurf(double startPhi, double deltaPhi, double zhalf,
@@ -173,9 +176,6 @@ namespace magneticfield {
     // x,y plane in the DDD local frame, and defines a frame where the local
     // coordinates are the same as in DDD.
     GloballyPositioned<float> * refPlane;
-
-    // the Solid.
-    dd4hep:Solid solid;  
 
     // the center of the volume
     GlobalPoint center_;

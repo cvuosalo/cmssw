@@ -21,6 +21,7 @@
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
+#include "DetectorDescription/DDCMS/interface/RotationMatrix.h"
 #include <DD4hep/Volumes.h>
 #include <memory>
 #include <vector>
@@ -52,10 +53,12 @@ namespace cms {
     const PlacedVolume volume() const;
     
     //! The absolute translation of the current node
+    // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
     
     //! The absolute rotation of the current node
     const Double_t* rot() const;
+    void rot(ddcms::RotationMatrix &matrixOut) const;
 
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
@@ -90,6 +93,23 @@ namespace cms {
    
     //! pop current node
     void unCheckNode();
+
+    // Shape of current node
+    bool isABox() const;
+    bool isACone() const;
+    bool isAPseudoTrapezoid() const;
+    bool isATrapezoid() const;
+    bool isACutTube() const;
+    bool isATube() const;
+
+    // Name of current node
+    std::string name() const;
+
+    // Copy number of current node
+    unsigned short copyNum() const;
+
+    // Material name of current node
+    std::string materialName() const;
 
     //! extract shape parameters
     std::vector<double> extractParameters() const;

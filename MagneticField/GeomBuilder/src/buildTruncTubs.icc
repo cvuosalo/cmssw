@@ -9,8 +9,8 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug) cout << "Building TruncTubs surfaces...: " <<endl;
+static void buildTruncTubs() {
+  LogDebug("magneticfield::volumeHandle") << "Building TruncTubs surfaces...: " <<endl;
 
    DDTruncTubs tubs(solid);
 
@@ -23,7 +23,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   double cutAtDelta = tubs.cutAtDelta()/cm; // truncation at end of the tube-section
   bool   cutInside  = tubs.cutInside();  // true, if truncation is on the inner side of the tube-section
 
-  if (MagGeoBuilderFromDDD::debug) cout << "zhalf      " << zhalf    << endl
+  LogDebug("magneticfield::volumeHandle") << "zhalf      " << zhalf    << endl
 		  << "rIn        " << rIn      << endl
 		  << "rOut       " << rOut     << endl
 		  << "startPhi   " << startPhi << endl
@@ -36,7 +36,6 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   //  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));
   //  GlobalVector planeYAxis = refPlane->toGlobal(LocalVector( 0, 1, 0));
   GlobalVector planeZAxis = refPlane->toGlobal(LocalVector( 0, 0, 1));
-
 
   Sides cyl_side;
   Sides plane_side;
@@ -85,7 +84,6 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   surfaces[plane_side] = new Plane(pos_Rplane, rot_R);
   surfaces[cyl_side] = new Cylinder(rCyl, Surface::PositionType(0,0,center_.z()),
 				    Surface::RotationType());
-				  
 
   // Build lateral surfaces.
   // Note that with the choice of center descrived above, the 
@@ -93,18 +91,17 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   // will be its center, while this is not true for the largest phi face.
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);  
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "pos_Rplane    " << pos_Rplane << " "
+  if (debug) {
+    LogDebug("magneticfield::volumeHandle") << "pos_Rplane    " << pos_Rplane << " "
 	 << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl 
 	 << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0.,0.,1.)) << " phi " << surfaces[plane_side]->toGlobal(LocalVector(0.,0.,1.)).phi() <<    endl 
 	 << "cyl radius    " << rCyl << endl;
 
 //   // Check ordering.
     if ((pos_Rplane.perp() < rCyl)  != cutInside) {      
-      cout << "*** WARNING: pos_outer < pos_inner " << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner " << endl;
     }
   }
-  
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;

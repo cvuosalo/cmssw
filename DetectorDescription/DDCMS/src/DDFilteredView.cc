@@ -24,9 +24,9 @@ DDFilteredView::trans() const {
   return it_.back().GetCurrentMatrix()->GetTranslation();
 }
 
-const Double_t*
-DDFilteredView::rot() const {
-  return it_.back().GetCurrentMatrix()->GetRotationMatrix();
+void DDFilteredView::rot(ddcms::RotationMatrix &matrixOut) const {
+  const Double_t *rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
+  matrixOut.SetComponents(rotation, rotation + 8);
 }
 
 void
@@ -196,13 +196,13 @@ DDFilteredView::accept(std::string_view name) {
 
 vector<double>
 DDFilteredView::extractParameters() const {
-  Volume volume = node_->GetVolume();
-  if(volume->GetShape()->IsA() == TGeoBBox::Class()) {
-    const TGeoBBox* box = static_cast<const TGeoBBox*>(volume->GetShape());
+  Volume currVol = node_->GetVolume();
+  if(currVol->GetShape()->IsA() == TGeoBBox::Class()) {
+    const TGeoBBox* box = static_cast<const TGeoBBox*>(currVol->GetShape());
     return {box->GetDX(), box->GetDY(), box->GetDZ()}; 
   }
-  else if(volume->GetShape()->IsA() == TGeoCompositeShape::Class()) {
-    const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(volume->GetShape());
+  else if(currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
+    const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
     const TGeoBoolNode* boolean = shape->GetBoolNode();
     while(boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
       boolean = static_cast<const TGeoCompositeShape*>(boolean->GetLeftShape())->GetBoolNode();
@@ -267,4 +267,52 @@ DDFilteredView::unCheckNode() {
    nodes_.tags.pop_back();
    nodes_.offsets.pop_back();
    nodes_.copyNos.pop_back();
+}
+
+bool
+DDFilteredView::isABox() const {
+  Volume currVol = node_->GetVolume();
+  return (currVol->GetShape()->IsA() == TGeoBBox::Class());
+}
+
+bool
+DDFilteredView::isACone() const {
+  Volume currVol = node_->GetVolume();
+  return (currVol->GetShape()->IsA() == TGeoCone::Class());
+}
+
+bool
+DDFilteredView::isAPseudoTrapezoid() const {
+  Volume currVol = node_->GetVolume();
+  return (currVol->GetShape()->IsA() == TGeoArb8::Class());
+}
+
+bool
+DDFilteredView::isATrapezoid() const {
+  Volume currVol = node_->GetVolume();
+  return (currVol->GetShape()->IsA() == TGeoTrap::Class());
+}
+
+bool
+DDFilteredView::isACutTube() const {
+  Volume currVol = node_->GetVolume();
+  return (currVol->GetShape()->IsA() == TGeoCtub::Class());
+}
+
+bool
+DDFilteredView::isATube() const {
+  Volume currVol = node_->GetVolume();
+  return (currVol->GetShape()->IsA() == TGeoTube::Class());
+}
+
+std::string DDFilteredView::name() const {
+  return (volume().volume().name());
+}
+
+unsigned short DDFilteredView::copyNum() const {
+  return (volume().copyNumber());
+}
+
+std::string DDFilteredView::materialName() const {
+  return (volume().material().name());
 }

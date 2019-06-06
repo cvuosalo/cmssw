@@ -124,17 +124,17 @@ private:
   // initialise the refPlane
   void referencePlane(const DDExpandedView &fv);
   // Build the surfaces for a box
-  void buildBox(const DDExpandedView & fv);
+  friend void buildBox();
   // Build the surfaces for a trapezoid
-  void buildTrap(const DDExpandedView & fv);
+  friend void buildTrap();
   // Build the surfaces for a ddtubs shape
-  void buildTubs(const DDExpandedView & fv);  
+  friend void buildTubs();  
   // Build the surfaces for a ddcons shape
-  void buildCons(const DDExpandedView & fv);  
+  friend void buildCons();  
   // Build the surfaces for a ddpseudotrap shape
-  void buildPseudoTrap(const DDExpandedView & fv);
+  friend void buildPseudoTrap();
   // Build the surfaces for a ddtrunctubs shape
-  void buildTruncTubs(const DDExpandedView & fv);
+  friend void buildTruncTubs();
 
   // Build phi, z surfaces (common for ddtubs and ddcons)
   void buildPhiZSurf(double startPhi, double deltaPhi, double zhalf,
