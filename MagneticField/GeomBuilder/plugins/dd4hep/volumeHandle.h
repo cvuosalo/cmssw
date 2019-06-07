@@ -142,22 +142,22 @@ namespace magneticfield {
     // The following friend functions can be made member functions after
     // the old DD is dropped.
     // Build the surfaces for a box
-    friend void buildBox();
+    void buildBox();
 
     // Build the surfaces for a trapezoid
-    friend void buildTrap();
+    void buildTrap();
 
     // Build the surfaces for a ddtubs shape
-    friend void buildTubs();  
+    void buildTubs();  
 
     // Build the surfaces for a ddcons shape
-    friend void buildCons();  
+    void buildCons();  
 
     // Build the surfaces for a ddpseudotrap shape
-    friend void buildPseudoTrap();
+    void buildPseudoTrap();
 
     // Build the surfaces for a ddtrunctubs shape
-    friend void buildTruncTubs();
+    void buildTruncTubs();
 
     // Build phi, z surfaces (common for ddtubs and ddcons)
     void buildPhiZSurf(double startPhi, double deltaPhi, double zhalf,

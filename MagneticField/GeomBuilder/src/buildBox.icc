@@ -4,7 +4,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-static void buildBox() {
+void volumeHandle::buildBox() {
   LogDebug("magneticfield::volumeHandle") << "Building box surfaces...: ";
 
   DDBox box(solid);

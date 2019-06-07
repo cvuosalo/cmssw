@@ -19,6 +19,7 @@
 //
 //
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "DetectorDescription/DDCMS/interface/RotationMatrix.h"
@@ -101,6 +102,12 @@ namespace cms {
     bool isATrapezoid() const;
     bool isACutTube() const;
     bool isATube() const;
+
+    // Get shape pointer of current node.
+    // Caller must check that current node matches desired type
+    // before calling this function.
+    template <class T>
+    const T *getShapePtr<T*>() const;
 
     // Name of current node
     std::string name() const;

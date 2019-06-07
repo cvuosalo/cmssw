@@ -1,4 +1,4 @@
-static void buildTubs() {
+void volumeHandle::buildTubs() {
   LogDebug("magneticfield::volumeHandle") << "Building tubs surfaces...: " <<endl;
 
   DDTubs tubs(solid);

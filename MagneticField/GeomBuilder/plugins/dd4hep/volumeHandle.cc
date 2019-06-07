@@ -13,7 +13,7 @@
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -31,15 +31,6 @@ using namespace magneticfield;
 using namespace cms;
 using namespace ddcms;
 using namespace edm;
-using namespace math;
-
-
-static void buildBox();
-static void buildCons();  
-static void buildPseudoTrap();
-static void buildTrap();
-static void buildTubs();  
-static void buildTruncTubs();
 
 
 volumeHandle::~volumeHandle(){
@@ -166,11 +157,9 @@ void volumeHandle::referencePlane(const DDFilteredView &fv){
   Surface::PositionType & posResult = center_;
 
   // The reference plane rotation
-  // DD3Vector x, y, z;
-  XYZPoint x, y, z;
+  math::XYZVector x, y, z;
   RotationMatrix refRot;
   fv.rot(refRot);
-  // fv.rotation().GetComponents(x,y,z);
   refRot.GetComponents(x, y, z);
   if (debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
@@ -192,7 +181,7 @@ void volumeHandle::referencePlane(const DDFilteredView &fv){
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z 
-    if (getCurrentShape() == Shape::PseudoTrapezoid) {
+    if (getCurrentShape(fv) == Shape::PseudoTrapezoid) {
       globalZdir = LocalVector(0.,1.,0.);    
     }
     if (refPlane->toGlobal(globalZdir).z()<0.) {
@@ -423,6 +412,7 @@ volumeHandle::sides() const{
   return result;
 }
 
+// printUniqueNames is for debugging only
 void volumeHandle::printUniqueNames(handles::const_iterator begin, handles::const_iterator end, bool uniq) {
     std::vector<std::string> names;
     for (handles::const_iterator i = begin; 
@@ -430,20 +420,20 @@ void volumeHandle::printUniqueNames(handles::const_iterator begin, handles::cons
       if (uniq) names.push_back((*i)->name);
       else names.push_back((*i)->name+":"+std::to_string((*i)->copyno));
     }
-     
     sort(names.begin(),names.end());
     if (uniq) {
       std::vector<std::string>::iterator i = unique(names.begin(),names.end());
       int nvols = int(i - names.begin());
-      LogDebug("magneticfield::volumeHandle") << nvols << " ";
-      copy(names.begin(), i, ostream_iterator<std::string>(LogDebug("magneticfield::volumeHandle"), " "));
+      cout << nvols << " ";
+      copy(names.begin(), i, ostream_iterator<std::string>(cout, " "));
     } else {
-      LogDebug("magneticfield::volumeHandle") << names.size() << " ";
-      copy(names.begin(), names.end(), ostream_iterator<std::string>(LogDebug("magneticfield::volumeHandle"), " "));
+      cout << names.size() << " ";
+      copy(names.begin(), names.end(), ostream_iterator<std::string>(cout, " "));
     }
-    LogDebug("magneticfield::volumeHandle") << endl;
+    cout << endl;
 }
 
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"
 #include "MagneticField/GeomBuilder/src/buildTrap.icc"

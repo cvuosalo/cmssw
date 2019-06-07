@@ -6,7 +6,7 @@
 
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
-static void buildCons() {
+void volumeHandle::buildCons() {
   LogDebug("magneticfield::volumeHandle") << "Building cons surfaces...: " <<endl;
   
   DDCons cons(solid);

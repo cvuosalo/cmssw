@@ -10,7 +10,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-static void buildPseudoTrap() {
+void volumeHandle::buildPseudoTrap() {
   LogDebug("magneticfield::volumeHandle") << "Building PseudoTrap surfaces...: " <<endl;
 
   DDPseudoTrap ptrap(solid);

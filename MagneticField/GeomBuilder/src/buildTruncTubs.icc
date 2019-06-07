@@ -9,7 +9,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-static void buildTruncTubs() {
+void volumeHandle::buildTruncTubs() {
   LogDebug("magneticfield::volumeHandle") << "Building TruncTubs surfaces...: " <<endl;
 
    DDTruncTubs tubs(solid);

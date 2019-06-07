@@ -6,6 +6,7 @@
 #include <vector>
 
 using namespace cms;
+using namespace ddcms;
 using namespace std;
 using namespace cms::dd;
 
@@ -303,6 +304,11 @@ bool
 DDFilteredView::isATube() const {
   Volume currVol = node_->GetVolume();
   return (currVol->GetShape()->IsA() == TGeoTube::Class());
+}
+
+template <class T>
+const T* getShapePtr<T*>() const {
+  return (static_cast<const T*>(currVol->GetShape()));
 }
 
 std::string DDFilteredView::name() const {

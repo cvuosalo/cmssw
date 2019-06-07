@@ -5,7 +5,7 @@
  */
 
 
-static void buildTrap() {
+void volumeHandle::buildTrap() {
   LogDebug("magneticfield::volumeHandle") << "Building trapezoid surfaces...: " <<endl;
 
   DDTrap trap(solid); //FIXME
