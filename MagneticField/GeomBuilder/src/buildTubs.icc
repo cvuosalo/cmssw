@@ -1,21 +1,20 @@
-void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building tubs surfaces...: " << endl;
+void volumeHandle::buildTubs() {
+  LogDebug("magneticfield::volumeHandle") << "Building tubs surfaces...: " << endl;
 
   DDTubs tubs(solid);
 
-  double zhalf = tubs.zhalf() / cm;
-  double rIn = tubs.rIn() / cm;
-  double rOut = tubs.rOut() / cm;
+  // Change lengths from Geant units (mm) to CMS units (cm)
+  double zhalf = geant_units::operators::convertMmToCm(tubs.zhalf());
+  double rIn = geant_units::operators::convertMmToCm(tubs.rIn());
+  double rOut = geant_units::operators::convertMmToCm(tubs.rOut());
   double startPhi = tubs.startPhi();
   double deltaPhi = tubs.deltaPhi();
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "zhalf    " << zhalf << endl
-         << "rIn      " << rIn << endl
-         << "rOut     " << rOut << endl
-         << "startPhi " << startPhi << endl
-         << "deltaPhi " << deltaPhi << endl;
+  LogDebug("magneticfield::volumeHandle") << "zhalf    " << zhalf << endl
+                                          << "rIn      " << rIn << endl
+                                          << "rOut     " << rOut << endl
+                                          << "startPhi " << startPhi << endl
+                                          << "deltaPhi " << deltaPhi << endl;
 
   // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
   double rCentr = (rIn + rOut) / 2.;
@@ -36,13 +35,12 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
 
   // Check ordering.
-  if (MagGeoBuilderFromDDD::debug) {
-    if (dynamic_cast<const Cylinder *>(&(*surfaces[outer]))->radius() <
-        dynamic_cast<const Cylinder *>(&(*surfaces[inner]))->radius()) {
-      cout << "*** WARNING: pos_outer < pos_inner " << endl;
+  if (debug) {
+    if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
+        dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()) {
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner " << endl;
     }
   }
-
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;
