@@ -19,7 +19,7 @@ namespace magneticfield {
     eSector(handles::const_iterator begin, handles::const_iterator end, bool debugFlag = false);
 
     /// Destructor
-    ~eSector();
+    ~eSector() = default;
 
     //   /// Return all volumes in this sector
     //   const handles & getVolumes() const {return volumes;}

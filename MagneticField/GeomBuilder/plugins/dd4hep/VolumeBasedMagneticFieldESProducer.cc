@@ -8,8 +8,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "MagneticField/GeomBuilder/plugs/dd4hep/MagGeoBuilder.h"
+#include "MagneticField/GeomBuilder/plugins/dd4hep/MagGeoBuilder.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
+#include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include <string>
 #include <vector>
@@ -19,6 +21,8 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
+using namespace cms;
+using namespace edm;
 using namespace magneticfield;
 
 VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
@@ -34,20 +38,20 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
         << "produce()  version " << pset_.getParameter<std::string>("version") << endl;
   }
 
-  edm::ESTransientHandle<DDDetector> cpv;
-  record.getRecord<GeometryFileRcd>().get(tag_.module(), cpv);
+  edm::ESTransientHandle<DDCompactView> cpv;
+  iRecord.get("magfield", cpv);
 
   ESTransientHandle<DDSpecParRegistry> registry;
-  record.getRecord<DDSpecParRegistryRcd>().get(tag_.module(), registry);
+  iRecord.getRecord<DDSpecParRegistryRcd>().get(tag_.module(), registry);
   DDSpecParRefs myReg;
   {
-    BenchmarkGrd b1("DTGeometryESProducer Filter Registry");
+    BenchmarkGrd b1("VolumeBasedMagneticFieldESProducer Filter Registry");
     const string attribute{pset_.getParameter<string>("attribute")};
     const string value{pset_.getParameter<string>("value")};
     registry->filter(myReg, attribute, value);
   }
-  MagGeoBuilder builder;
   MagFieldConfig conf(pset_, debug);
+  MagGeoBuilder builder(conf.version, conf.geometryVersion, debug);
   // Set scaling factors
   if (!conf.keys.empty()) {
     builder.setScaling(conf.keys, conf.values);

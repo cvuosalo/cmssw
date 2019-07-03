@@ -147,6 +147,10 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   }
 }
 
+MagGeoBuilderFromDDD::volumeHandle::~volumeHandle() {
+  delete refPlane;
+}
+
 void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv) {
   // The refPlane is the "main plane" for the solid. It corresponds to the
   // x,y plane in the DDD local frame, and defines a frame where the local

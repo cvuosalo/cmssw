@@ -18,7 +18,7 @@ namespace magneticfield {
     eLayer(handles::const_iterator begin, handles::const_iterator end);
 
     /// Destructor
-    ~eLayer();
+    ~eLayer() = default;
 
     //   /// Return the list of all volumes.
     //   const handles & volumes() const {return theVolumes;}

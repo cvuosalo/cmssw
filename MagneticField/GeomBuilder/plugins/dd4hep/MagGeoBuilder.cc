@@ -81,8 +81,9 @@ void MagGeoBuilder::summary(handles& volumes) {
   handles::const_iterator last = volumes.end();
 
   for (handles::const_iterator i = first; i != last; ++i) {
-    Shape theShape = (*i)->shape;
-    if (theShape == Shape::Box || theShape == Shape::Cone || theShape == Shape::Trapezoid || theShape == Shape::Tube) {
+    DDSolidShape theShape = (*i)->shape();
+    if (theShape == DDSolidShape::ddbox || theShape == DDSolidShape::ddcons ||
+        theShape == DDSolidShape::ddtrap || theShape == DDSolidShape::ddtubs) {
       for (int side = 0; side < 6; ++side) {
         int references = (*i)->references(side);
         if ((*i)->isPlaneMatched(side)) {
@@ -127,15 +128,15 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   int eVolCount = 0;
 
   const string magfStr{"MAGF"};
-  if (fv.getCurrentName() != magfStr) {
-    std::string topNodeName(fv.getCurrentName());
+  if (fv.name() != magfStr) {
+    std::string topNodeName(fv.name());
 
     //see if one of the children is MAGF
     bool doSubDets = fv.firstChild();
 
     bool go = true;
     while (go && doSubDets) {
-      if (fv.getCurrentName() == magfStr)
+      if (fv.name() == magfStr)
         break;
       else
         go = fv.nextSibling();
@@ -146,15 +147,12 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
           << topNodeName << "\"";
     }
   }
-  // Loop over MAGF volumes and create volumeHandles.
-  LogDebug("MagGeoBuilder") << "*** MAGF: " << fv.history() << endl
-                            << "translation: " << fv.trans() << endl
-                            << " rotation: " << fv.rot() << endl;
 
+  // Loop over MAGF volumes and create volumeHandles.
   bool doSubDets = fv.firstChild();
   while (doSubDets) {
     string name = fv.volume().volume().name();
-    LogDebug("MagGeoBuilder") << "Name: " << name << endl << "      " << fv.history() << endl;
+    LogDebug("MagGeoBuilder") << "Name: " << name;
 
     bool expand = false;
     volumeHandle* v = new volumeHandle(fv, expand);

@@ -1,4 +1,10 @@
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
+#include "MagneticField/GeomBuilder/src/printUniqueNames.h"
+
+#include <iostream>
+#include <iterator>
+#include <iomanip>
+
+using namespace std;
 
 void magneticfield::printUniqueNames(handles::const_iterator begin,
                                                           handles::const_iterator end,

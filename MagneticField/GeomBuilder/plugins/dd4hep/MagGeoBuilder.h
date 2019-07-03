@@ -15,7 +15,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
+#include "MagneticField/GeomBuilder/plugins/dd4hep/volumeHandle.h"
 
 #include <string>
 #include <vector>
@@ -35,6 +35,9 @@ namespace cms {
 
   class MagGeoBuilder {
   public:
+
+    using handles = magneticfield::handles;
+
     MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false);
 
     ~MagGeoBuilder();
@@ -59,14 +62,12 @@ namespace cms {
 
     float maxZ() const;
 
-  private:
-    typedef ConstReferenceCountingPointer<Surface> RCPS;
-
     std::vector<MagVolume6Faces*> barrelVolumes() const;
     std::vector<MagVolume6Faces*> endcapVolumes() const;
 
-    // Temporary container to manipulate volumes and their surfaces.
-    typedef std::vector<magneticfield::volumeHandle*> handles;
+  private:
+    typedef ConstReferenceCountingPointer<Surface> RCPS;
+
 
     // Build interpolator for the volume with "correct" rotation
     void buildInterpolator(const magneticfield::volumeHandle* vol,

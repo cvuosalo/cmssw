@@ -35,9 +35,9 @@ namespace magneticfield {
     const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&) = delete;
 
     edm::ParameterSet pset_;
-    edm::ESGetToken<DDDetector, GeometryFileRcd> cpvToken_;
-    edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> registryToken_;
-    const ESInputTag tag_;
+    edm::ESGetToken<cms::DDDetector, GeometryFileRcd> cpvToken_;
+    edm::ESGetToken<cms::DDSpecParRegistry, DDSpecParRegistryRcd> registryToken_;
+    const edm::ESInputTag tag_;
   };
 }  // namespace magneticfield
 
