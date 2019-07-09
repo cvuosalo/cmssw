@@ -40,6 +40,11 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
 
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.get("magfield", cpv);
+  // edm::ESTransientHandle<cms::DDCompactView> pDD;
+  // Need EventSetup
+  // iSetup.get<IdealGeometryRecord>().get(pDD);
+  const DDCompactView* cpvPtr = cpv.product();
+  const DDDetector* det = cpvPtr->detector();
 
   ESTransientHandle<DDSpecParRegistry> registry;
   iRecord.getRecord<DDSpecParRegistryRcd>().get(tag_.module(), registry);
@@ -60,7 +65,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
   if (!conf.gridFiles.empty()) {
     builder.setGridFiles(conf.gridFiles);
   }
-  builder.build(&(*cpv), myReg);
+  builder.build(det, myReg);
 
   // Get subordinate field (from ES)
   edm::ESHandle<MagneticField> paramField;
