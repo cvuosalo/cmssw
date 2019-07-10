@@ -1,7 +1,7 @@
-#ifndef VolumeBasedMagneticFieldESProducer_h
-#define VolumeBasedMagneticFieldESProducer_h
+#ifndef VolBasedMagFieldESProducerDD4hep_h
+#define VolBasedMagFieldESProducerDD4hep_h
 
-/** \class VolumeBasedMagneticFieldESProducer
+/** \class VolBasedMagFieldESProducerDD4hep
  *
  *  Producer for the VolumeBasedMagneticField.
  *
@@ -23,16 +23,16 @@
 #include <vector>
 
 namespace magneticfield {
-  class VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
+  class VolBasedMagFieldESProducerDD4hep : public edm::ESProducer {
   public:
-    VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
+    VolBasedMagFieldESProducerDD4hep(const edm::ParameterSet& iConfig);
 
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
   private:
     // forbid copy ctor and assignment op.
-    VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&) = delete;
-    const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&) = delete;
+    VolBasedMagFieldESProducerDD4hep(const VolBasedMagFieldESProducerDD4hep&) = delete;
+    const VolBasedMagFieldESProducerDD4hep& operator=(const VolBasedMagFieldESProducerDD4hep&) = delete;
 
     edm::ParameterSet pset_;
     edm::ESGetToken<cms::DDDetector, GeometryFileRcd> cpvToken_;

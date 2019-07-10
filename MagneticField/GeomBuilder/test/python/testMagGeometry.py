@@ -12,24 +12,24 @@ process.MessageLogger = cms.Service(
     statistics = cms.untracked.vstring('cout', 'magGeometry'),
     categories = cms.untracked.vstring('Geometry'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
+        threshold = cms.untracked.string('DEBUG'),
         noLineBreaks = cms.untracked.bool(True)
         ),
     magGeometry = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
             ),
         noLineBreaks = cms.untracked.bool(True),
         DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
             ),
         WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
             ),
         ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
             ),
-        threshold = cms.untracked.string('INFO'),
+        threshold = cms.untracked.string('DEBUG'),
         Geometry = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             )
@@ -43,15 +43,15 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             appendToDataLabel = cms.string('CMS')
                                             )
 
-process.MagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
-                                              DDDetector = cms.ESInputTag('CMS'),
+process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerDD4hep",
+                                              DDDetector = cms.ESInputTag('', 'CMS'),
                                               appendToDataLabel = cms.string(''),
                                               useParametrizedTrackerField = cms.bool(True),
                                               label = cms.untracked.string(''),
                                               paramLabel = cms.string('parametrizedField'),
                                               version = cms.string('grid_160812_3_8t'),
                                               geometryVersion = cms.int32(160812),
-                                              debugBuilder = cms.untracked.bool(False),
+                                              debugBuilder = cms.untracked.bool(True),
                                               cacheLastVolume = cms.untracked.bool(True),
                                               scalingVolumes = cms.vint32(),
                                               scalingFactors = cms.vdouble(),
@@ -84,7 +84,7 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      )
 
 process.test = cms.EDAnalyzer("testMagGeometryAnalyzer",
-                              DDDetector = cms.ESInputTag('MUON')
+                              DDDetector = cms.ESInputTag('', 'MUON')
                               )
 
 process.p = cms.Path(process.test)

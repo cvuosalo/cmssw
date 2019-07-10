@@ -1,4 +1,4 @@
-#include "MagneticField/GeomBuilder/plugins/dd4hep/VolumeBasedMagneticFieldESProducer.h"
+#include "MagneticField/GeomBuilder/plugins/dd4hep/VolBasedMagFieldESProducerDD4hep.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -25,17 +25,17 @@ using namespace cms;
 using namespace edm;
 using namespace magneticfield;
 
-VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
+VolBasedMagFieldESProducerDD4hep::VolBasedMagFieldESProducerDD4hep(const edm::ParameterSet& iConfig)
     : pset_(iConfig), tag_(iConfig.getParameter<ESInputTag>("DDDetector")) {
   auto cc = setWhatProduced(this, pset_.getUntrackedParameter<std::string>("label", ""));
   registryToken_ =  cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
+std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const IdealMagneticFieldRecord& iRecord) {
   bool debug = pset_.getUntrackedParameter<bool>("debugBuilder", false);
   if (debug) {
-    LogDebug("VolumeBasedMagneticFieldESProducer")
+    LogDebug("VolBasedMagFieldESProducerDD4hep")
         << "produce()  version " << pset_.getParameter<std::string>("version") << endl;
   }
 
@@ -50,7 +50,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
   ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
   DDSpecParRefs myReg;
   {
-    BenchmarkGrd b1("VolumeBasedMagneticFieldESProducer Filter Registry");
+    BenchmarkGrd b1("VolBasedMagFieldESProducerDD4hep Filter Registry");
     const string attribute{pset_.getParameter<string>("attribute")};
     const string value{pset_.getParameter<string>("value")};
     registry->filter(myReg, attribute, value);
@@ -84,4 +84,4 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
                                                     false);
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(VolBasedMagFieldESProducerDD4hep);

@@ -399,7 +399,7 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
     if (interpolators.find((*vol)->magFile) != interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
-      edm::LogError("MagGeoBuilderbuildMagVolumes")
+      edm::LogError("MagGeoBuilder|buildMagVolumes")
           << "No interpolator found for file " << (*vol)->magFile << " vol: " << (*vol)->volumeno << "\n"
           << interpolators.size() << endl;
     }
@@ -417,7 +417,7 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
     if (isf != theScalingFactors_.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer")
+      edm::LogInfo("MagGeoBuilder|buildMagVolumes")
           << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "[" << (*vol)->copyno << "] (key:" << key
           << ")" << endl;
     }
