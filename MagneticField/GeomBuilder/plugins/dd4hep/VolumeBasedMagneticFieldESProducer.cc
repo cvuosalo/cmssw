@@ -27,7 +27,8 @@ using namespace magneticfield;
 
 VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
     : pset_(iConfig), tag_(iConfig.getParameter<ESInputTag>("DDDetector")) {
-  setWhatProduced(this, pset_.getUntrackedParameter<std::string>("label", ""));
+  auto cc = setWhatProduced(this, pset_.getUntrackedParameter<std::string>("label", ""));
+  registryToken_ =  cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
 }
 
 // ------------ method called to produce the data  ------------
@@ -46,8 +47,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
   const DDCompactView* cpvPtr = cpv.product();
   const DDDetector* det = cpvPtr->detector();
 
-  ESTransientHandle<DDSpecParRegistry> registry;
-  iRecord.getRecord<DDSpecParRegistryRcd>().get(tag_.module(), registry);
+  ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
   DDSpecParRefs myReg;
   {
     BenchmarkGrd b1("VolumeBasedMagneticFieldESProducer Filter Registry");

@@ -17,6 +17,9 @@
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <iostream>
+
+
 using namespace std;
 using namespace edm;
 
