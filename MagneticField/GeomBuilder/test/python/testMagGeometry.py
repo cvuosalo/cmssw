@@ -4,39 +4,29 @@ process = cms.Process("MagneticFieldTest")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(2)
     )
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'magGeometry'),
-    categories = cms.untracked.vstring('Geometry'),
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.MessageLogger = cms.Service("MessageLogger",
+    debugModules = cms.untracked.vstring( '*' ),
+    destinations = cms.untracked.vstring('cout'),
+    categories     = cms.untracked.vstring ( '*' ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noLineBreaks = cms.untracked.bool(True)
-        ),
-    magGeometry = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        threshold = cms.untracked.string('DEBUG'),
-        Geometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            )
-        ),
-    destinations = cms.untracked.vstring('cout',
-                                         'magGeometry')
+      noLineBreaks = cms.untracked.bool(True),
+      INFO  =  cms.untracked.PSet (limit = cms.untracked.int32(-1)),
+      DEBUG =  cms.untracked.PSet (limit = cms.untracked.int32(-1)),
+      WARNING = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+      ),
+      ERROR = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+      ),
+      threshold = cms.untracked.string('DEBUG'),
+      default =  cms.untracked.PSet (limit = cms.untracked.int32(-1))
     )
+)
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
@@ -47,7 +37,7 @@ process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerDD4h
                                               DDDetector = cms.ESInputTag('', 'CMS'),
                                               appendToDataLabel = cms.string(''),
                                               useParametrizedTrackerField = cms.bool(True),
-                                              label = cms.untracked.string(''),
+                                              label = cms.untracked.string('0t'),
                                               paramLabel = cms.string('parametrizedField'),
                                               version = cms.string('grid_160812_3_8t'),
                                               geometryVersion = cms.int32(160812),
