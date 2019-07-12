@@ -28,18 +28,42 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
+process.magfield = cms.ESSource("XMLIdealGeometryESSource",
+    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
+        'Geometry/CMSCommonData/data/cms.xml', 
+        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
+        'Geometry/CMSCommonData/data/materials.xml'),
+    rootNodeName = cms.string('cmsMagneticField:MAGF')
+)
+
+# avoid interference with EmptyESSource in uniformMagneticField.cfi
+process.es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
+
+
+process.ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldProducer",
+    version = cms.string('OAE_1103l_071212'),
+    parameters = cms.PSet(
+        BValue = cms.string('3_5T')
+    ),
+    label = cms.untracked.string('parametrizedField')
+)
+
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
-                                            appendToDataLabel = cms.string('CMS')
+                                            appendToDataLabel = cms.string('')
                                             )
+
+                                              # version = cms.string('grid_160812_3_8t'),
 
 process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerDD4hep",
                                               DDDetector = cms.ESInputTag('', 'CMS'),
                                               appendToDataLabel = cms.string(''),
                                               useParametrizedTrackerField = cms.bool(True),
-                                              label = cms.untracked.string('0t'),
+                                              label = cms.untracked.string(''),
                                               paramLabel = cms.string('parametrizedField'),
-                                              version = cms.string('grid_160812_3_8t'),
+                                              version = cms.string('grid_160812_3_5t'),
                                               geometryVersion = cms.int32(160812),
                                               debugBuilder = cms.untracked.bool(True),
                                               cacheLastVolume = cms.untracked.bool(True),
@@ -72,6 +96,10 @@ process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerDD4h
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
                                                      appendToDataLabel = cms.string('CMS')
                                                      )
+
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('')
+                                                )
 
 process.test = cms.EDAnalyzer("testMagGeometryAnalyzer",
                               DDDetector = cms.ESInputTag('', 'MUON')

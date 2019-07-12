@@ -25,6 +25,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -52,7 +53,8 @@ namespace magneticfield {
     const MagFieldConfig conf_;
     const std::string version_;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
-    edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
+    edm::ESGetToken<DDDetector, IdealMagneticFieldRecord> cpvToken_;
+    // edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
     // edm::ESGetToken<cms::DDDetector, GeometryFileRcd> cpvToken_;
     edm::ESGetToken<cms::DDSpecParRegistry, DDSpecParRegistryRcd> registryToken_;
     const edm::ESInputTag tag_;
@@ -69,6 +71,12 @@ VolBasedMagFieldESProducerDD4hep::VolBasedMagFieldESProducerDD4hep(const edm::Pa
       version_{iConfig.getParameter<std::string>("version")},
       tag_{iConfig.getParameter<ESInputTag>("DDDetector")}
 {
+  LogTrace("VolBasedMagFieldESProducerDD4hep") << "trace:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
+  LogInfo("VolBasedMagFieldESProducerDD4hep") << "info:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
+  LogWarning("VolBasedMagFieldESProducerDD4hep") << "warn:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
+  LogError("VolBasedMagFieldESProducerDD4hep") << "err:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
+  cout << "***** Is it constructed at all???????????? *** debug = " << debug_ << endl;
+
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   cc.setConsumes(cpvToken_);
   registryToken_ =  cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
@@ -96,8 +104,9 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const I
   }
 
   auto cpv = iRecord.getTransientHandle(cpvToken_);
-  const DDCompactView* cpvPtr = cpv.product();
-  const DDDetector* det = cpvPtr->detector();
+  // const DDCompactView* cpvPtr = cpv.product();
+  // const DDDetector* det = cpvPtr->detector();
+  const DDDetector* det = cpv.product();
   ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
   DDSpecParRefs myReg;
   {
