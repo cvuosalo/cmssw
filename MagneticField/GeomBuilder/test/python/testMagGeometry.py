@@ -52,16 +52,18 @@ process.ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagnetic
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
-                                            appendToDataLabel = cms.string('')
+                                            appendToDataLabel = cms.string('magfield')
                                             )
 
                                               # version = cms.string('grid_160812_3_8t'),
 
 process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerDD4hep",
-                                              DDDetector = cms.ESInputTag('', 'CMS'),
+                                              DDDetector = cms.ESInputTag('', 'magfield'),
                                               appendToDataLabel = cms.string(''),
                                               useParametrizedTrackerField = cms.bool(True),
                                               label = cms.untracked.string(''),
+                                              attribute = cms.string('magfield'),
+                                              value = cms.string('magfield'),
                                               paramLabel = cms.string('parametrizedField'),
                                               version = cms.string('grid_160812_3_5t'),
                                               geometryVersion = cms.int32(160812),
@@ -94,15 +96,15 @@ process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerDD4h
                                                )
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('CMS')
+                                                     appendToDataLabel = cms.string('magfield')
                                                      )
 
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string('')
+process.DDCompactViewMFESProducer = cms.ESProducer("DDCompactViewMFESProducer",
+                                                 appendToDataLabel = cms.string('magfield')
                                                 )
 
 process.test = cms.EDAnalyzer("testMagGeometryAnalyzer",
-                              DDDetector = cms.ESInputTag('', 'MUON')
+                              DDDetector = cms.ESInputTag('', 'magfield')
                               )
 
 process.p = cms.Path(process.test)

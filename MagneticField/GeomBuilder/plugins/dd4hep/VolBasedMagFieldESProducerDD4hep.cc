@@ -23,7 +23,6 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 #include <iostream>
 #include <string>
@@ -53,8 +52,8 @@ namespace magneticfield {
     const MagFieldConfig conf_;
     const std::string version_;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
-    edm::ESGetToken<DDDetector, IdealMagneticFieldRecord> cpvToken_;
-    // edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
+    // edm::ESGetToken<DDDetector, IdealMagneticFieldRecord> cpvToken_;
+    edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
     // edm::ESGetToken<cms::DDDetector, GeometryFileRcd> cpvToken_;
     edm::ESGetToken<cms::DDSpecParRegistry, DDSpecParRegistryRcd> registryToken_;
     const edm::ESInputTag tag_;
@@ -78,7 +77,8 @@ VolBasedMagFieldESProducerDD4hep::VolBasedMagFieldESProducerDD4hep(const edm::Pa
   cout << "***** Is it constructed at all???????????? *** debug = " << debug_ << endl;
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
-  cc.setConsumes(cpvToken_);
+  cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
+  // cpvToken_ = cc.consumesFrom<DDDetector, IdealMagneticFieldRecord>(tag_);
   registryToken_ =  cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
   if (useParametrizedTrackerField_) {
     cc.setConsumes(paramFieldToken_);
@@ -104,16 +104,16 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const I
   }
 
   auto cpv = iRecord.getTransientHandle(cpvToken_);
-  // const DDCompactView* cpvPtr = cpv.product();
-  // const DDDetector* det = cpvPtr->detector();
-  const DDDetector* det = cpv.product();
+  const DDCompactView* cpvPtr = cpv.product();
+  const DDDetector* det = cpvPtr->detector();
+  // const DDDetector* det = cpv.product();
   ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
   DDSpecParRefs myReg;
   {
     BenchmarkGrd b1("VolBasedMagFieldESProducerDD4hep Filter Registry");
     const string attribute{pset_.getParameter<string>("attribute")};
     const string value{pset_.getParameter<string>("value")};
-    registry->filter(myReg, attribute, value);
+    // registry->filter(myReg, attribute, value);
   }
   builder.build(det, myReg);
 

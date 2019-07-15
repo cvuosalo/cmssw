@@ -54,7 +54,7 @@ using namespace geant_units::operators;
 MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug)
     : tableSet_(tableSet), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
   if (debug_)
-    LogInfo("MagGeoBuilder") << "Constructing a MagGeoBuilder" << endl;
+    LogVerbatim("MagGeoBuilder") << "Constructing a MagGeoBuilder" << endl;
 }
 
 MagGeoBuilder::~MagGeoBuilder() {
@@ -93,13 +93,13 @@ void MagGeoBuilder::summary(handles& volumes) {
           if (firstOcc)
             iref_ass += references;
           if (references < 2) {
-            LogInfo("MagGeoBuilder") << "*** Only 1 ref, vol: " << (*i)->volumeno << " # " << (*i)->copyno
+            LogVerbatim("MagGeoBuilder") << "*** Only 1 ref, vol: " << (*i)->volumeno << " # " << (*i)->copyno
                                       << " side: " << side << endl;
           }
         } else {
           iref_nass += references;
           if (references > 1) {
-            LogInfo("MagGeoBuilder") << "*** Ref_nass >1 " << endl;
+            LogVerbatim("MagGeoBuilder") << "*** Ref_nass >1 " << endl;
           }
         }
       }
@@ -107,7 +107,7 @@ void MagGeoBuilder::summary(handles& volumes) {
   }    // end for
   iunique = ptrs.size();
 
-  LogInfo("MagGeoBuilder") << "    volumes   " << ivolumes << endl
+  LogVerbatim("MagGeoBuilder") << "    volumes   " << ivolumes << endl
                             << "    surfaces  " << isurfaces << endl
                             << "    assigned  " << iassigned << endl
                             << "    unique    " << iunique << endl
@@ -119,6 +119,10 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   Volume top = det->worldVolume();
   DDFilteredView fv(det, top);
   fv.mergedSpecifics(refs);
+  if (fv.checkChild() == false) {
+    LogError("MagGeoBuilder") << "Filtered view is empty. Cannot build.";
+    return;
+  }
 
   // The actual field interpolators
   map<string, MagProviderInterpol*> bInterpolators;
@@ -153,7 +157,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   bool doSubDets = fv.firstChild();
   while (doSubDets) {
     string name = fv.volume().volume().name();
-    LogInfo("MagGeoBuilder") << "Name: " << name;
+    LogVerbatim("MagGeoBuilder") << "Name: " << name;
 
     bool expand = false;
     volumeHandle* v = new volumeHandle(fv, expand);
@@ -202,7 +206,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
                                      // where there is a single V1
     ) {                              // Barrel
       if (debug_)
-        LogInfo("MagGeoBuilder") << " (Barrel)" << endl;
+        LogVerbatim("MagGeoBuilder") << " (Barrel)" << endl;
       bVolumes_.push_back(v);
 
       // Build the interpolator of the "master" volume (the one which is
@@ -214,7 +218,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
       }
     } else {  // Endcaps
       if (debug_)
-        LogInfo("MagGeoBuilder") << " (Endcaps)" << endl;
+        LogVerbatim("MagGeoBuilder") << " (Endcaps)" << endl;
       eVolumes_.push_back(v);
       if (v->copyno == v->masterSector) {
         buildInterpolator(v, eInterpolators);
@@ -226,9 +230,9 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
 
   if (debug_) {
-    LogInfo("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size() << endl
-                              << "Number of volumes (endcap): " << eVolumes_.size() << endl;
-    LogInfo("MagGeoBuilder") << "**********************************************************" << endl;
+    LogVerbatim("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size() << endl
+                              << "  Number of volumes (endcap): " << eVolumes_.size() << endl;
+    LogVerbatim("MagGeoBuilder") << "**********************************************************" << endl;
   }
 
   // Now all volumeHandles are there, and parameters for each of the planes
@@ -238,18 +242,22 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   // Print summary information
 
   if (debug_) {
-    LogInfo("MagGeoBuilder") << "-----------------------" << endl;
-    LogInfo("MagGeoBuilder") << "SUMMARY: Barrel " << endl;
+    LogVerbatim("MagGeoBuilder") << "-----------------------" << endl;
+    LogVerbatim("MagGeoBuilder") << "SUMMARY: Barrel " << endl;
     summary(bVolumes_);
 
-    LogInfo("MagGeoBuilder") << endl << "SUMMARY: Endcaps " << endl;
+    LogVerbatim("MagGeoBuilder") << endl << "SUMMARY: Endcaps " << endl;
     summary(eVolumes_);
-    LogInfo("MagGeoBuilder") << "-----------------------" << endl;
+    LogVerbatim("MagGeoBuilder") << "-----------------------" << endl;
   }
 
   //----------------------------------------------------------------------
   // Find barrel layers.
 
+  if (bVolumes_.size() <= 0) {
+    LogError("MagGeoBuilder") << "Error: Barrel volumes are missing. Terminating build.";
+    return;
+  }
   vector<bLayer> layers;  // the barrel layers
   precomputed_value_sort(bVolumes_.begin(), bVolumes_.end(), ExtractRN());
 
@@ -260,7 +268,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   ClusterizingHistogram hisR(int((rmax - rmin) / resolution) + 1, rmin, rmax);
 
   if (debug_)
-    LogInfo("MagGeoBuilder") << " R layers: " << rmin << " " << rmax << endl;
+    LogVerbatim("MagGeoBuilder") << " R layers: " << rmin << " " << rmax << endl;
 
   handles::const_iterator first = bVolumes_.begin();
   handles::const_iterator last = bVolumes_.end();
@@ -275,7 +283,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
 
   for (unsigned int i = 0; i < rClust.size() - 1; ++i) {
     if (debug_)
-      LogInfo("MagGeoBuilder") << " Layer at RN = " << rClust[i];
+      LogVerbatim("MagGeoBuilder") << " Layer at RN = " << rClust[i];
     float rSepar = (rClust[i] + rClust[i + 1]) / 2.f;
     while ((*separ)->RN() < rSepar)
       ++separ;
@@ -286,13 +294,13 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
   {
     if (debug_)
-      LogInfo("MagGeoBuilder") << " Layer at RN = " << rClust.back();
+      LogVerbatim("MagGeoBuilder") << " Layer at RN = " << rClust.back();
     bLayer thislayer(separ, last, debug_);
     layers.push_back(thislayer);
   }
 
   if (debug_)
-    LogInfo("MagGeoBuilder") << "Barrel: Found " << rClust.size() << " clusters in R, " << layers.size() << " layers "
+    LogVerbatim("MagGeoBuilder") << "Barrel: Found " << rClust.size() << " clusters in R, " << layers.size() << " layers "
                               << endl
                               << endl;
 
@@ -311,7 +319,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   vector<float> phiClust = hisPhi.clusterize(phireso);
   int nESectors = phiClust.size();
   if (debug_ && (nESectors % 12) != 0)
-    LogInfo("MagGeoBuilder") << "ERROR: unexpected # of sectors: " << nESectors << endl;
+    LogVerbatim("MagGeoBuilder") << "ERROR: unexpected # of sectors: " << nESectors << endl;
 
   //Sort in phi
   precomputed_value_sort(eVolumes_.begin(), eVolumes_.end(), ExtractPhi());
@@ -334,13 +342,13 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   int offset = eVolumes_.size() / nESectors;
   for (int i = 0; i < nESectors; ++i) {
     if (debug_) {
-      LogInfo("MagGeoBuilder") << " Sector at phi = " << (*(eVolumes_.begin() + ((i)*offset)))->center().phi() << endl;
+      LogVerbatim("MagGeoBuilder") << " Sector at phi = " << (*(eVolumes_.begin() + ((i)*offset)))->center().phi() << endl;
       // Additional x-check: sectors are expected to be made by volumes with the same copyno
       int secCopyNo = -1;
       for (handles::const_iterator iv = eVolumes_.begin() + ((i)*offset); iv != eVolumes_.begin() + ((i + 1) * offset);
            ++iv) {
         if (secCopyNo >= 0 && (*iv)->copyno != secCopyNo)
-          LogInfo("MagGeoBuilder") << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno
+          LogVerbatim("MagGeoBuilder") << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno
                                     << " differs from others in same sectors " << secCopyNo << endl;
         secCopyNo = (*iv)->copyno;
       }
@@ -350,7 +358,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
 
   if (debug_)
-    LogInfo("MagGeoBuilder") << "Endcap: Found " << sectors.size() << " sectors " << endl;
+    LogVerbatim("MagGeoBuilder") << "Endcap: Found " << sectors.size() << " sectors " << endl;
 
   //----------------------------------------------------------------------
   // Build MagVolumes and the MagGeometry hierarchy.
@@ -366,7 +374,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
 
   if (debug_) {
-    LogInfo("MagGeoBuilder") << "*** BARREL ********************************************" << endl
+    LogVerbatim("MagGeoBuilder") << "*** BARREL ********************************************" << endl
                               << "Number of different volumes   = " << bVolCount << endl
                               << "Number of interpolators built = " << bInterpolators.size() << endl
                               << "Number of MagBLayers built    = " << mBLayers_.size() << endl;
@@ -384,7 +392,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
 
   if (debug_) {
-    LogInfo("MagGeoBuilder") << "*** ENDCAP ********************************************" << endl
+    LogVerbatim("MagGeoBuilder") << "*** ENDCAP ********************************************" << endl
                               << "Number of different volumes   = " << eVolCount << endl
                               << "Number of interpolators built = " << eInterpolators.size() << endl
                               << "Number of MagESector built    = " << mESectors_.size() << endl;
@@ -418,7 +426,7 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
     if (isf != theScalingFactors_.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagGeoBuilder|buildMagVolumes")
+      edm::LogVerbatim("MagGeoBuilder|buildMagVolumes")
           << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "[" << (*vol)->copyno << "] (key:" << key
           << ")" << endl;
     }
@@ -443,12 +451,12 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
   double masterSectorPhi = (vol->masterSector - 1) * 1._pi / 6.;
 
   if (debug_) {
-    LogInfo("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
+    LogVerbatim("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
                               << vol->center() << " phi: " << vol->center().phi() << " file: " << vol->magFile
                               << " master : " << vol->masterSector << endl;
 
     if (fabs(vol->center().phi() - masterSectorPhi) > 1._pi / 9.) {
-      LogInfo("MagGeoBuilder") << "***WARNING wrong sector? " << endl;
+      LogVerbatim("MagGeoBuilder") << "***WARNING wrong sector? " << endl;
     }
   }
 
@@ -493,7 +501,7 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
       interpolators[vol->magFile] = MFGridFactory::build(fullPath, rf);
     }
   } catch (MagException& exc) {
-    LogInfo("MagGeoBuilder") << exc.what() << endl;
+    LogVerbatim("MagGeoBuilder") << exc.what() << endl;
     interpolators.erase(vol->magFile);
     if (!debug_)
       throw;
@@ -508,7 +516,7 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
     const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
     if (grid != nullptr) {
       Dimensions sizes = grid->dimensions();
-      LogInfo("MagGeoBuilder") << "Grid has 3 dimensions "
+      LogVerbatim("MagGeoBuilder") << "Grid has 3 dimensions "
                                 << " number of nodes is " << sizes.w << " " << sizes.h << " " << sizes.d << endl;
 
       const double tolerance = 0.03;
@@ -521,7 +529,7 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
             if (!tempVolume.inside(lp, tolerance)) {
               if (++dumpCount < 2) {
                 MFGrid::GlobalPoint gp = tempVolume.toGlobal(lp);
-                LogInfo("MagGeoBuilder") << "GRID ERROR: " << i << " " << j << " " << k << " local: " << lp
+                LogVerbatim("MagGeoBuilder") << "GRID ERROR: " << i << " " << j << " " << k << " local: " << lp
                                           << " global: " << gp << " R= " << gp.perp() << " phi=" << gp.phi() << endl;
               }
             }
@@ -529,7 +537,7 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
         }
       }
 
-      LogInfo("MagGeoBuilder") << "Volume:" << vol->volumeno
+      LogVerbatim("MagGeoBuilder") << "Volume:" << vol->volumeno
                                 << " : Number of grid points outside the MagVolume: " << dumpCount << "/"
                                 << sizes.w * sizes.h * sizes.d << endl;
     }
@@ -538,26 +546,26 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
 
 void MagGeoBuilder::testInside(handles& volumes) {
   // test inside() for all volumes.
-  LogInfo("MagGeoBuilder") << "--------------------------------------------------" << endl;
-  LogInfo("MagGeoBuilder") << " inside(center) test" << endl;
+  LogVerbatim("MagGeoBuilder") << "--------------------------------------------------" << endl;
+  LogVerbatim("MagGeoBuilder") << " inside(center) test" << endl;
   for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
     for (handles::const_iterator i = volumes.begin(); i != volumes.end(); ++i) {
       if ((*i) == (*vol))
         continue;
       //if ((*i)->magVolume == 0) continue;
       if ((*i)->magVolume->inside((*vol)->center())) {
-        LogInfo("MagGeoBuilder") << "*** ERROR: center of V " << (*vol)->volumeno << ":" << (*vol)->copyno
+        LogVerbatim("MagGeoBuilder") << "*** ERROR: center of V " << (*vol)->volumeno << ":" << (*vol)->copyno
                                   << " is inside V " << (*i)->volumeno << ":" << (*i)->copyno << endl;
       }
     }
 
     if ((*vol)->magVolume->inside((*vol)->center())) {
-      LogInfo("MagGeoBuilder") << "V " << (*vol)->volumeno << " OK " << endl;
+      LogVerbatim("MagGeoBuilder") << "V " << (*vol)->volumeno << " OK " << endl;
     } else {
-      LogInfo("MagGeoBuilder") << "*** ERROR: center of volume is not inside it, " << (*vol)->volumeno << endl;
+      LogVerbatim("MagGeoBuilder") << "*** ERROR: center of volume is not inside it, " << (*vol)->volumeno << endl;
     }
   }
-  LogInfo("MagGeoBuilder") << "--------------------------------------------------" << endl;
+  LogVerbatim("MagGeoBuilder") << "--------------------------------------------------" << endl;
 }
 
 vector<MagBLayer*> MagGeoBuilder::barrelLayers() const { return mBLayers_; }
