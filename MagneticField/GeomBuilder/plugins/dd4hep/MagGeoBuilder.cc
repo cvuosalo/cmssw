@@ -118,8 +118,8 @@ void MagGeoBuilder::summary(handles& volumes) {
 void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   Volume top = det->worldVolume();
   DDFilteredView fv(det, top);
-  fv.mergedSpecifics(refs);
-  if (fv.checkChild() == false) {
+  // fv.mergedSpecifics(refs);
+  if (fv.next(0) == false) {
     LogError("MagGeoBuilder") << "Filtered view is empty. Cannot build.";
     return;
   }
@@ -135,16 +135,20 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   const string magfStr{"MAGF"};
   if (fv.name() != magfStr) {
     std::string topNodeName(fv.name());
+    LogVerbatim("MagGeoBuilder") << "Filtered view top node name is " << topNodeName << ".";
 
     //see if one of the children is MAGF
-    bool doSubDets = fv.firstChild();
+    // bool doSubDets = fv.firstChild();
+    bool doSubDets = fv.next(0);
 
     bool go = true;
     while (go && doSubDets) {
+      LogVerbatim("MagGeoBuilder") << "Next node name is " << fv.name() << ".";
       if (fv.name() == magfStr)
         break;
       else
-        go = fv.nextSibling();
+        go = fv.next(0);
+        // go = fv.nextSibling();
     }
     if (!go) {
       throw cms::Exception("NoMAGF")
@@ -154,13 +158,18 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
 
   // Loop over MAGF volumes and create volumeHandles.
-  bool doSubDets = fv.firstChild();
+  // bool doSubDets = fv.firstChild();
+  bool doSubDets = fv.next(0);
+  if (doSubDets == false) {
+    LogError("MagGeoBuilder") << "Filtered view has no node. Cannot build.";
+    return;
+  }
   while (doSubDets) {
     string name = fv.volume().volume().name();
     LogVerbatim("MagGeoBuilder") << "Name: " << name;
 
     bool expand = false;
-    volumeHandle* v = new volumeHandle(fv, expand);
+    volumeHandle* v = new volumeHandle(fv, expand, debug_);
 
     if (theGridFiles_ != nullptr) {
       int key = (v->volumeno) * 100 + v->copyno;
@@ -225,8 +234,8 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
         ++eVolCount;
       }
     }
-
-    doSubDets = fv.nextSibling();  // end of loop over MAGF
+    // doSubDets = fv.nextSibling();  // end of loop over MAGF
+    doSubDets = fv.next(0);  // end of loop over MAGF
   }
 
   if (debug_) {
@@ -318,8 +327,11 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
   vector<float> phiClust = hisPhi.clusterize(phireso);
   int nESectors = phiClust.size();
-  if (debug_ && (nESectors % 12) != 0)
-    LogVerbatim("MagGeoBuilder") << "ERROR: unexpected # of sectors: " << nESectors << endl;
+  if (nESectors <= 0 || (nESectors % 12) != 0) {
+    LogError("MagGeoBuilder") << "ERROR: unexpected # of sectors: " << nESectors << 
+      ". Terminating build.";
+    return;
+  }
 
   //Sort in phi
   precomputed_value_sort(eVolumes_.begin(), eVolumes_.end(), ExtractPhi());

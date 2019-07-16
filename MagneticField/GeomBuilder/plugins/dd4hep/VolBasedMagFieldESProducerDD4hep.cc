@@ -113,7 +113,7 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const I
     BenchmarkGrd b1("VolBasedMagFieldESProducerDD4hep Filter Registry");
     const string attribute{pset_.getParameter<string>("attribute")};
     const string value{pset_.getParameter<string>("value")};
-    // registry->filter(myReg, attribute, value);
+    registry->filter(myReg, attribute, value);
   }
   builder.build(det, myReg);
 

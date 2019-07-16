@@ -82,7 +82,7 @@ volumeHandle::volumeHandle(DDFilteredView &fv, bool expand2Pi, bool debugVal) :
       buildPseudoTrap();
       break;
     default:
-      LogWarning("magneticfield::volumeHandle") << "ctor: Unexpected shape_ # " <<
+      LogError("magneticfield::volumeHandle") << "ctor: Unexpected shape_ # " <<
       static_cast<int>(shape_) << " for vol " << name;
   }
 
@@ -98,14 +98,15 @@ volumeHandle::volumeHandle(DDFilteredView &fv, bool expand2Pi, bool debugVal) :
       LogDebug("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
 
     LogDebug("magneticfield::volumeHandle")
-        << "Summary: " << name << " " << copyno << " DDSolidShape= " << shape_ << " trasl " << center() << " R "
+        << "Summary: " << name << " " << copyno << " shape = " << shape_ << " trasl " << center() << " R "
         << center().perp() << " phi " << center().phi() << " magFile " << magFile << " Material= " << fv.materialName()
         << " isIron= " << isIronFlag << " masterSector= " << masterSector << std::endl;
 
     LogDebug("magneticfield::volumeHandle") << " Orientation of surfaces:";
     std::string sideName[3] = {"positiveSide", "negativeSide", "onSurface"};
     for (int i = 0; i < 6; ++i) {
-      LogDebug("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
+      if (surfaces[i] != nullptr)
+        LogDebug("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
     }
   }
 }
