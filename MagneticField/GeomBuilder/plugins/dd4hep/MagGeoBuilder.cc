@@ -201,6 +201,8 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
     // Select volumes, build volume handles.
     float Z = v->center().z();
     float R = v->center().perp();
+    LogVerbatim("MagGeoBuilder") << " Vol R and Z values determine barrel or endcap. R = " << R <<
+      ", Z = " << Z;
 
     // v 85l: Barrel is everything up to |Z| = 661.0, excluding
     // volume #7, centered at 6477.5
@@ -328,7 +330,7 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   vector<float> phiClust = hisPhi.clusterize(phireso);
   int nESectors = phiClust.size();
   if (nESectors <= 0 || (nESectors % 12) != 0) {
-    LogError("MagGeoBuilder") << "ERROR: unexpected # of sectors: " << nESectors << 
+    LogError("MagGeoBuilder") << "ERROR: unexpected # of endcap sectors: " << nESectors << 
       ". Terminating build.";
     return;
   }
@@ -467,8 +469,9 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
                               << vol->center() << " phi: " << vol->center().phi() << " file: " << vol->magFile
                               << " master : " << vol->masterSector << endl;
 
-    if (fabs(vol->center().phi() - masterSectorPhi) > 1._pi / 9.) {
-      LogVerbatim("MagGeoBuilder") << "***WARNING wrong sector? " << endl;
+    double delta = std::abs(vol->center().phi() - masterSectorPhi); 
+    if (delta  > (1._pi / 9.)) {
+      LogVerbatim("MagGeoBuilder") << "***WARNING wrong sector? Vol delta from master sector is " << delta;
     }
   }
 

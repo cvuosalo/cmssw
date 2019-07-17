@@ -24,7 +24,6 @@ namespace magneticfield {
   class volumeHandle  : public BaseVolumeHandle {
   public:
     volumeHandle(cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
-    ~volumeHandle() override;
 
     // Shape at initialization
     DDSolidShape shape() const override { return (shape_); }

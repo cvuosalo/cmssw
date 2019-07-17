@@ -33,10 +33,6 @@ using namespace cms;
 using namespace ddcms;
 using namespace edm;
 
-volumeHandle::~volumeHandle() {
-  if (refPlane != nullptr)
-    delete refPlane;
-}
 
 // Note "fv" has to be non-const because of some shape constructors that use it.
 volumeHandle::volumeHandle(DDFilteredView &fv, bool expand2Pi, bool debugVal) :

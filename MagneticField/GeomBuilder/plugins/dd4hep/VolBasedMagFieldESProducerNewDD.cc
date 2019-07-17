@@ -35,16 +35,16 @@ using namespace std;
 using namespace magneticfield;
 
 namespace magneticfield {
-  class VolBasedMagFieldESProducerDD4hep : public edm::ESProducer {
+  class VolBasedMagFieldESProducerNewDD : public edm::ESProducer {
   public:
-    VolBasedMagFieldESProducerDD4hep(const edm::ParameterSet& iConfig);
+    VolBasedMagFieldESProducerNewDD(const edm::ParameterSet& iConfig);
 
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
   private:
     // forbid copy ctor and assignment op.
-    VolBasedMagFieldESProducerDD4hep(const VolBasedMagFieldESProducerDD4hep&) = delete;
-    const VolBasedMagFieldESProducerDD4hep& operator=(const VolBasedMagFieldESProducerDD4hep&) = delete;
+    VolBasedMagFieldESProducerNewDD(const VolBasedMagFieldESProducerNewDD&) = delete;
+    const VolBasedMagFieldESProducerNewDD& operator=(const VolBasedMagFieldESProducerNewDD&) = delete;
 
     edm::ParameterSet pset_;
     const bool debug_;
@@ -62,7 +62,7 @@ namespace magneticfield {
 
 
 
-VolBasedMagFieldESProducerDD4hep::VolBasedMagFieldESProducerDD4hep(const edm::ParameterSet& iConfig)
+VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::ParameterSet& iConfig)
     : pset_{iConfig}, 
       debug_{iConfig.getUntrackedParameter<bool>("debugBuilder", false)},
       useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
@@ -70,10 +70,10 @@ VolBasedMagFieldESProducerDD4hep::VolBasedMagFieldESProducerDD4hep(const edm::Pa
       version_{iConfig.getParameter<std::string>("version")},
       tag_{iConfig.getParameter<ESInputTag>("DDDetector")}
 {
-  LogTrace("VolBasedMagFieldESProducerDD4hep") << "trace:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
-  LogInfo("VolBasedMagFieldESProducerDD4hep") << "info:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
-  LogWarning("VolBasedMagFieldESProducerDD4hep") << "warn:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
-  LogError("VolBasedMagFieldESProducerDD4hep") << "err:Constructing a VolBasedMagFieldESProducerDD4hep" << endl;
+  LogTrace("VolBasedMagFieldESProducerNewDD") << "trace:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
+  LogInfo("VolBasedMagFieldESProducerNewDD") << "info:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
+  LogWarning("VolBasedMagFieldESProducerNewDD") << "warn:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
+  LogError("VolBasedMagFieldESProducerNewDD") << "err:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
   cout << "***** Is it constructed at all???????????? *** debug = " << debug_ << endl;
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
@@ -86,9 +86,9 @@ VolBasedMagFieldESProducerDD4hep::VolBasedMagFieldESProducerDD4hep(const edm::Pa
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const IdealMagneticFieldRecord& iRecord) {
+std::unique_ptr<MagneticField> VolBasedMagFieldESProducerNewDD::produce(const IdealMagneticFieldRecord& iRecord) {
   if (debug_) {
-    edm::LogPrint("VolBasedMagFieldESProducerDD4hep") << "VolBasedMagFieldESProducerDD4hep::produce() " << version_;
+    edm::LogPrint("VolBasedMagFieldESProducerNewDD") << "VolBasedMagFieldESProducerNewDD::produce() " << version_;
   }
 
   MagGeoBuilder builder(conf_.version, conf_.geometryVersion, debug_);
@@ -107,19 +107,21 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const I
   const DDCompactView* cpvPtr = cpv.product();
   const DDDetector* det = cpvPtr->detector();
   // const DDDetector* det = cpv.product();
-  ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
+  // ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
   DDSpecParRefs myReg;
-  {
-    BenchmarkGrd b1("VolBasedMagFieldESProducerDD4hep Filter Registry");
-    const string attribute{pset_.getParameter<string>("attribute")};
-    const string value{pset_.getParameter<string>("value")};
-    registry->filter(myReg, attribute, value);
-  }
+  // {
+    // BenchmarkGrd b1("VolBasedMagFieldESProducerNewDD Filter Registry");
+    // const string attribute{pset_.getParameter<string>("attribute")};
+    // const string value{pset_.getParameter<string>("value")};
+    // registry->filter(myReg, attribute, value);
+  // }
   builder.build(det, myReg);
+  edm::LogPrint("VolBasedMagFieldESProducerNewDD") << "produce() finished build";
 
   // Get slave field (from ES)
   const MagneticField* paramField = nullptr;
   if (useParametrizedTrackerField_) {
+    edm::LogPrint("VolBasedMagFieldESProducerNewDD") << "Getting MF again -- infinite recursion?";
     paramField = &iRecord.get(paramFieldToken_);
   }
   return std::make_unique<VolumeBasedMagneticField>(conf_.geometryVersion,
@@ -133,4 +135,4 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerDD4hep::produce(const I
                                                     false);
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(VolBasedMagFieldESProducerDD4hep);
+DEFINE_FWK_EVENTSETUP_MODULE(VolBasedMagFieldESProducerNewDD);
