@@ -81,7 +81,7 @@ VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::Para
   // cpvToken_ = cc.consumesFrom<DDDetector, IdealMagneticFieldRecord>(tag_);
   registryToken_ =  cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
   if (useParametrizedTrackerField_) {
-    cc.setConsumes(paramFieldToken_);
+    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
   }
 }
 

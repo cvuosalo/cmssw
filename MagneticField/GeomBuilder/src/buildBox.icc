@@ -9,9 +9,9 @@ void volumeHandle::buildBox() {
 
   DDBox box(solid);
   // Change box lengths from Geant units (mm) to CMS units (cm)
-  double halfX = geant_units::operators::convertMmToCm(box.halfX());
-  double halfY = geant_units::operators::convertMmToCm(box.halfY());
-  double halfZ = geant_units::operators::convertMmToCm(box.halfZ());
+  double halfX = convertUnits(box.halfX());
+  double halfY = convertUnits(box.halfY());
+  double halfZ = convertUnits(box.halfZ());
 
   // Global vectors of the normals to X, Y, Z axes
   GlobalVector planeXAxis = refPlane->toGlobal(LocalVector(1, 0, 0));

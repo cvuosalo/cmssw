@@ -10,15 +10,15 @@ void volumeHandle::buildTrap() {
   DDTrap trap(solid);  //FIXME
 
   // Change lengths from Geant units (mm) to CMS units (cm)
-  double x1 = geant_units::operators::convertMmToCm(trap.x1());
-  double x2 = geant_units::operators::convertMmToCm(trap.x2());
-  double x3 = geant_units::operators::convertMmToCm(trap.x3());
-  double x4 = geant_units::operators::convertMmToCm(trap.x4());
-  double y1 = geant_units::operators::convertMmToCm(trap.y1());
-  double y2 = geant_units::operators::convertMmToCm(trap.y2());
+  double x1 = convertUnits(trap.x1());
+  double x2 = convertUnits(trap.x2());
+  double x3 = convertUnits(trap.x3());
+  double x4 = convertUnits(trap.x4());
+  double y1 = convertUnits(trap.y1());
+  double y2 = convertUnits(trap.y2());
   double theta = trap.theta();
   double phi = trap.phi();
-  double halfZ = geant_units::operators::convertMmToCm(trap.halfZ());
+  double halfZ = convertUnits(trap.halfZ());
   double alpha1 = trap.alpha1();
   double alpha2 = trap.alpha2();
 

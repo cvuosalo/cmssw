@@ -16,12 +16,12 @@ void volumeHandle::buildPseudoTrap() {
   DDPseudoTrap ptrap(solid);
 
   // Change lengths from Geant units (mm) to CMS units (cm)
-  double halfZ = geant_units::operators::convertMmToCm(ptrap.halfZ());
-  double x1 = geant_units::operators::convertMmToCm(ptrap.x1());
-  double x2 = geant_units::operators::convertMmToCm(ptrap.x2());
-  double y1 = geant_units::operators::convertMmToCm(ptrap.y1());
-  double y2 = geant_units::operators::convertMmToCm(ptrap.y2());
-  double radius = geant_units::operators::convertMmToCm(ptrap.radius());
+  double halfZ = convertUnits(ptrap.halfZ());
+  double x1 = convertUnits(ptrap.x1());
+  double x2 = convertUnits(ptrap.x2());
+  double y1 = convertUnits(ptrap.y1());
+  double y2 = convertUnits(ptrap.y2());
+  double radius = convertUnits(ptrap.radius());
   bool atMinusZ = ptrap.atMinusZ();
 
   LogDebug("magneticfield::volumeHandle") << "halfZ     " << halfZ << endl

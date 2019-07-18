@@ -43,10 +43,12 @@ volumeHandle::volumeHandle(DDFilteredView &fv, bool expand2Pi, bool debugVal) :
   name = fv.name();
   copyno = fv.copyNum();
   expand = expand2Pi;
-  Double_t transArray[3];
-  for (int index = 0; index < 3; ++index) {
-    transArray[index] = geant_units::operators::convertMmToCm(fv.trans()[index]);
-  }
+  const Double_t *const transArray = fv.trans();
+  // Double_t transArray[3];
+  // for (int index = 0; index < 3; ++index) {
+    // transArray[index] = geant_units::operators::convertMmToCm(fv.trans()[index]);
+    // transArray[index] = fv.trans()[index];
+  // }
   center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
@@ -199,6 +201,15 @@ std::vector<VolumeSide> volumeHandle::sides() const {
   return result;
 }
 
+// To allow the following code to work with both old and new DD,
+// we need this function that merely returns its argument.
+// For the old DD, another version of this function converts mm to cm.
+
+template <class NumType>
+inline constexpr NumType convertUnits(NumType centimeters)
+{
+   return (centimeters);
+}
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"
 #include "MagneticField/GeomBuilder/src/buildTrap.icc"

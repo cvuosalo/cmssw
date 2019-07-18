@@ -26,7 +26,6 @@
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,8 +47,7 @@ using namespace magneticfield;
 using namespace cms;
 using namespace edm;
 using namespace dd4hep;
-// using namespace angle_units;
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug)
     : tableSet_(tableSet), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
@@ -329,10 +327,12 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
   vector<float> phiClust = hisPhi.clusterize(phireso);
   int nESectors = phiClust.size();
-  if (nESectors <= 0 || (nESectors % 12) != 0) {
-    LogError("MagGeoBuilder") << "ERROR: unexpected # of endcap sectors: " << nESectors << 
-      ". Terminating build.";
+  if (nESectors <= 0) {
+    LogError("MagGeoBuilder") << "ERROR: Endcap sectors are missing.  Terminating build.";
     return;
+  }
+  if (debug_ && (nESectors % 12) != 0) {
+    LogVerbatim("MagGeoBuilder") << "ERROR: unexpected # of endcap sectors: " << nESectors;
   }
 
   //Sort in phi

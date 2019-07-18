@@ -13,11 +13,11 @@ void volumeHandle::buildCons() {
 
 
   // Change lengths from Geant units (mm) to CMS units (cm)
-  double zhalf = geant_units::operators::convertMmToCm(cons.zhalf());
-  double rInMinusZ = geant_units::operators::convertMmToCm(cons.rInMinusZ());
-  double rOutMinusZ = geant_units::operators::convertMmToCm(cons.rOutMinusZ());
-  double rInPlusZ = geant_units::operators::convertMmToCm(cons.rInPlusZ());
-  double rOutPlusZ = geant_units::operators::convertMmToCm(cons.rOutPlusZ());
+  double zhalf = convertUnits(cons.zhalf());
+  double rInMinusZ = convertUnits(cons.rInMinusZ());
+  double rOutMinusZ = convertUnits(cons.rOutMinusZ());
+  double rInPlusZ = convertUnits(cons.rInPlusZ());
+  double rOutPlusZ = convertUnits(cons.rOutPlusZ());
   double startPhi = cons.phiFrom();
   double deltaPhi = cons.deltaPhi();
 

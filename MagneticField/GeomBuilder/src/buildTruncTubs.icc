@@ -14,13 +14,13 @@ void volumeHandle::buildTruncTubs() {
 
   DDTruncTubs tubs(solid);
 
-  double zhalf = geant_units::operators::convertMmToCm(tubs.zHalf());            // half of the z-Axis
-  double rIn = geant_units::operators::convertMmToCm(tubs.rIn());                // inner radius
-  double rOut = geant_units::operators::convertMmToCm(tubs.rOut());              // outer radius
+  double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
+  double rIn = convertUnits(tubs.rIn());                // inner radius
+  double rOut = convertUnits(tubs.rOut());              // outer radius
   double startPhi = tubs.startPhi();                                             // angular start of the tube-section
   double deltaPhi = tubs.deltaPhi();                                             // angular span of the tube-section
-  double cutAtStart = geant_units::operators::convertMmToCm(tubs.cutAtStart());  // truncation at begin of the tube-section
-  double cutAtDelta = geant_units::operators::convertMmToCm(tubs.cutAtDelta());  // truncation at end of the tube-section
+  double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
+  double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
   bool cutInside = tubs.cutInside();                                             // true, if truncation is on the inner side of the tube-section
 
   LogDebug("magneticfield::volumeHandle") << "zhalf      " << zhalf << endl

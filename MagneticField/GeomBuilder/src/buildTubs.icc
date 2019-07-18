@@ -4,9 +4,9 @@ void volumeHandle::buildTubs() {
   DDTubs tubs(solid);
 
   // Change lengths from Geant units (mm) to CMS units (cm)
-  double zhalf = geant_units::operators::convertMmToCm(tubs.zhalf());
-  double rIn = geant_units::operators::convertMmToCm(tubs.rIn());
-  double rOut = geant_units::operators::convertMmToCm(tubs.rOut());
+  double zhalf = convertUnits(tubs.zhalf());
+  double rIn = convertUnits(tubs.rIn());
+  double rOut = convertUnits(tubs.rOut());
   double startPhi = tubs.startPhi();
   double deltaPhi = tubs.deltaPhi();
 
