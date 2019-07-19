@@ -30,7 +30,7 @@ using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 using namespace cms;
-using namespace ddcms;
+using namespace cms::dd;
 using namespace edm;
 
 
@@ -143,7 +143,7 @@ void volumeHandle::referencePlane(const DDFilteredView &fv) {
 
   // The reference plane rotation
   math::XYZVector x, y, z;
-  RotationMatrix refRot;
+  dd4hep::Rotation3D refRot;
   fv.rot(refRot);
   refRot.GetComponents(x, y, z);
   if (debug) {
