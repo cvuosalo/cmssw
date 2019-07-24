@@ -43,7 +43,7 @@ namespace cms {
     ~MagGeoBuilder();
 
     // Build the geometry.
-    void build(const DDDetector* det, const DDSpecParRefs& refs);
+    void build(const DDDetector* det);
 
     ///  Set scaling factors for individual volumes.
     /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)

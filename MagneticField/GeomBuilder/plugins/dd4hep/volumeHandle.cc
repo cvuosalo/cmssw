@@ -34,8 +34,7 @@ using namespace cms::dd;
 using namespace edm;
 
 
-// Note "fv" has to be non-const because of some shape constructors that use it.
-volumeHandle::volumeHandle(DDFilteredView &fv, bool expand2Pi, bool debugVal) :
+volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal) :
   BaseVolumeHandle(debugVal),
   shape_(getCurrentShape(fv)),
   solid(fv)
@@ -44,11 +43,6 @@ volumeHandle::volumeHandle(DDFilteredView &fv, bool expand2Pi, bool debugVal) :
   copyno = fv.copyNum();
   expand = expand2Pi;
   const Double_t *const transArray = fv.trans();
-  // Double_t transArray[3];
-  // for (int index = 0; index < 3; ++index) {
-    // transArray[index] = geant_units::operators::convertMmToCm(fv.trans()[index]);
-    // transArray[index] = fv.trans()[index];
-  // }
   center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number

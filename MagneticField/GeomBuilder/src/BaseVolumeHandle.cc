@@ -37,8 +37,10 @@ BaseVolumeHandle::BaseVolumeHandle(bool debugVal) :
 {}
 
 BaseVolumeHandle::~BaseVolumeHandle() {
-  if (refPlane != nullptr)
+  if (refPlane != nullptr) {
     delete refPlane;
+    refPlane = nullptr;
+  }
 }
 
 const Surface::GlobalPoint& BaseVolumeHandle::center() const { return center_; }

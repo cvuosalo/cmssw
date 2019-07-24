@@ -23,7 +23,7 @@ namespace magneticfield {
 
   class volumeHandle  : public BaseVolumeHandle {
   public:
-    volumeHandle(cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
+    volumeHandle(const cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
 
     // Shape at initialization
     DDSolidShape shape() const override { return (shape_); }
@@ -56,7 +56,7 @@ namespace magneticfield {
 
     // Shape at initialization
     const DDSolidShape shape_;
-    cms::DDFilteredView& solid;
+    const cms::DDFilteredView& solid;
     // "solid" name is for backwards compatibility. Can be changed to "fview" after DD4hep migration.
   };
 }  // namespace magneticfield

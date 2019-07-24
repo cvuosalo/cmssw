@@ -72,8 +72,10 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
   Geom::Phi<float> phimin = (*i).minPhi();
   for (++i; i != slabs.end(); ++i) {
     if (fabs(phimax - (*i).maxPhi()) > 0.001 || fabs(phimin - (*i).minPhi()) > 0.001) {
-      if (debug)
-        std::cout << "*** WARNING: slabs in this rod have different dphi!" << std::endl;
+      if (debug) {
+        std::cout << "*** WARNING: slabs in this rod have different dphi! minphi " << phimin;
+        std::cout << " != " << (*i).minPhi() << " or maxphi " << phimax << " != " << (*i).maxPhi() << std::endl;
+      }
     }
   }
 }

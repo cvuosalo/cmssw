@@ -23,14 +23,14 @@ void volumeHandle::buildTruncTubs() {
   double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
   bool cutInside = tubs.cutInside();                                             // true, if truncation is on the inner side of the tube-section
 
-  LogDebug("magneticfield::volumeHandle") << "zhalf      " << zhalf << endl
-                                          << "rIn        " << rIn << endl
-                                          << "rOut       " << rOut << endl
-                                          << "startPhi   " << startPhi << endl
-                                          << "deltaPhi   " << deltaPhi << endl
-                                          << "cutAtStart " << cutAtStart << endl
-                                          << "cutAtDelta " << cutAtDelta << endl
-                                          << "cutInside  " << cutInside << endl;
+  LogDebug("magneticfield::volumeHandle") << " zhalf      " << zhalf
+                                          << "\n rIn        " << rIn
+                                          << "\n rOut       " << rOut
+                                          << "\n startPhi   " << startPhi
+                                          << "\n deltaPhi   " << deltaPhi
+                                          << "\n cutAtStart " << cutAtStart
+                                          << "\n cutAtDelta " << cutAtDelta
+                                          << "\n cutInside  " << cutInside;
 
   //
   //  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));

@@ -25,9 +25,8 @@ class MagVolume6Faces;
 class MagGeoBuilderFromDDD::volumeHandle : public magneticfield::BaseVolumeHandle {
 public:
   volumeHandle(const DDExpandedView& fv, bool expand2Pi = false, bool debugVal = false);
-  ~volumeHandle() override;
 
-    DDSolidShape shape() const override { return solid.shape(); }
+  DDSolidShape shape() const override { return solid.shape(); }
 
   /// The surfaces and they orientation, as required to build a MagVolume.
   std::vector<VolumeSide> sides() const override;

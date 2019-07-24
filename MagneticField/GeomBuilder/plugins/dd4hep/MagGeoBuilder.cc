@@ -113,10 +113,9 @@ void MagGeoBuilder::summary(handles& volumes) {
                             << "    iref_nass " << iref_nass << endl;
 }
 
-void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
+void MagGeoBuilder::build(const DDDetector* det) {
   Volume top = det->worldVolume();
   DDFilteredView fv(det, top);
-  // fv.mergedSpecifics(refs);
   if (fv.next(0) == false) {
     LogError("MagGeoBuilder") << "Filtered view is empty. Cannot build.";
     return;
@@ -136,7 +135,6 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
     LogVerbatim("MagGeoBuilder") << "Filtered view top node name is " << topNodeName << ".";
 
     //see if one of the children is MAGF
-    // bool doSubDets = fv.firstChild();
     bool doSubDets = fv.next(0);
 
     bool go = true;
@@ -146,7 +144,6 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
         break;
       else
         go = fv.next(0);
-        // go = fv.nextSibling();
     }
     if (!go) {
       throw cms::Exception("NoMAGF")
@@ -156,7 +153,6 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
   }
 
   // Loop over MAGF volumes and create volumeHandles.
-  // bool doSubDets = fv.firstChild();
   bool doSubDets = fv.next(0);
   if (doSubDets == false) {
     LogError("MagGeoBuilder") << "Filtered view has no node. Cannot build.";
@@ -234,7 +230,6 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
         ++eVolCount;
       }
     }
-    // doSubDets = fv.nextSibling();  // end of loop over MAGF
     doSubDets = fv.next(0);  // end of loop over MAGF
   }
 
@@ -362,8 +357,8 @@ void MagGeoBuilder::build(const DDDetector* det, const DDSpecParRefs& refs) {
       for (handles::const_iterator iv = eVolumes_.begin() + ((i)*offset); iv != eVolumes_.begin() + ((i + 1) * offset);
            ++iv) {
         if (secCopyNo >= 0 && (*iv)->copyno != secCopyNo)
-          LogVerbatim("MagGeoBuilder") << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno
-                                    << " differs from others in same sectors " << secCopyNo << endl;
+          LogVerbatim("MagGeoBuilder") << "ERROR: volume copyno " << (*iv)->name << ":" << (*iv)->copyno
+                                    << " differs from others in same sectors with copyno = " << secCopyNo << endl;
         secCopyNo = (*iv)->copyno;
       }
     }
@@ -466,12 +461,12 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
 
   if (debug_) {
     LogVerbatim("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
-                              << vol->center() << " phi: " << vol->center().phi() << " file: " << vol->magFile
-                              << " master : " << vol->masterSector << endl;
+                              << vol->center() << " phi: " << static_cast<double>(vol->center().phi()) / 1._pi << " pi,  file: " << vol->magFile
+                              << " master: " << vol->masterSector << endl;
 
     double delta = std::abs(vol->center().phi() - masterSectorPhi); 
     if (delta  > (1._pi / 9.)) {
-      LogVerbatim("MagGeoBuilder") << "***WARNING wrong sector? Vol delta from master sector is " << delta;
+      LogVerbatim("MagGeoBuilder") << "***WARNING wrong sector? Vol delta from master sector is " << delta / 1._pi << " pi";
     }
   }
 
@@ -575,9 +570,10 @@ void MagGeoBuilder::testInside(handles& volumes) {
     }
 
     if ((*vol)->magVolume->inside((*vol)->center())) {
-      LogVerbatim("MagGeoBuilder") << "V " << (*vol)->volumeno << " OK " << endl;
+      LogVerbatim("MagGeoBuilder") << "V " << (*vol)->volumeno<< ":" << (*vol)->copyno << " OK " << endl;
     } else {
-      LogVerbatim("MagGeoBuilder") << "*** ERROR: center of volume is not inside it, " << (*vol)->volumeno << endl;
+      LogVerbatim("MagGeoBuilder") << "*** ERROR: center of volume is not inside it, " <<
+      (*vol)->volumeno << ":" << (*vol)->copyno;
     }
   }
   LogVerbatim("MagGeoBuilder") << "--------------------------------------------------" << endl;

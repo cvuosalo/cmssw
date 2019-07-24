@@ -78,7 +78,6 @@ VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::Para
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
-  // cpvToken_ = cc.consumesFrom<DDDetector, IdealMagneticFieldRecord>(tag_);
   registryToken_ =  cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
   if (useParametrizedTrackerField_) {
     cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
@@ -106,22 +105,13 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerNewDD::produce(const Id
   auto cpv = iRecord.getTransientHandle(cpvToken_);
   const DDCompactView* cpvPtr = cpv.product();
   const DDDetector* det = cpvPtr->detector();
-  // const DDDetector* det = cpv.product();
-  // ESTransientHandle<DDSpecParRegistry> registry = iRecord.getTransientHandle(registryToken_);
-  DDSpecParRefs myReg;
-  // {
-    // BenchmarkGrd b1("VolBasedMagFieldESProducerNewDD Filter Registry");
-    // const string attribute{pset_.getParameter<string>("attribute")};
-    // const string value{pset_.getParameter<string>("value")};
-    // registry->filter(myReg, attribute, value);
-  // }
-  builder.build(det, myReg);
+  builder.build(det);
   edm::LogPrint("VolBasedMagFieldESProducerNewDD") << "produce() finished build";
 
   // Get slave field (from ES)
   const MagneticField* paramField = nullptr;
   if (useParametrizedTrackerField_) {
-    edm::LogPrint("VolBasedMagFieldESProducerNewDD") << "Getting MF again -- infinite recursion?";
+    edm::LogPrint("VolBasedMagFieldESProducerNewDD") << "Getting MF for parametrized field";
     paramField = &iRecord.get(paramFieldToken_);
   }
   return std::make_unique<VolumeBasedMagneticField>(conf_.geometryVersion,
