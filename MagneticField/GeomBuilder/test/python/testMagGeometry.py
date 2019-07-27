@@ -95,10 +95,6 @@ process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerNewD
                                                      )
                                                )
 
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('magfield')
-                                                     )
-
 process.DDCompactViewMFESProducer = cms.ESProducer("DDCompactViewMFESProducer",
                                                  appendToDataLabel = cms.string('magfield')
                                                 )

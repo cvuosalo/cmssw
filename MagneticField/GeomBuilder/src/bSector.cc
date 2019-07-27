@@ -47,11 +47,20 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
     // Sort volumes in DELTA phi - i.e. phi(j)-phi(i) > 0 if j>1.
     precomputed_value_sort(volumes.begin(), volumes.end(), ExtractPhiMax(), LessDPhi());
 
-    const Geom::Phi<float> resolution(0.01);  // rad
+    const float resolution(0.01);  // rad
     Geom::Phi<float> phi0 = volumes.front()->maxPhi();
-    float phiMin = -(float)resolution;
-    float phiMax = volumes.back()->maxPhi() - phi0 + resolution;  ///FIXME: (float) resolution; ??
+    float phiMin = -resolution;  ///FIXME: (float) resolution; ??
 
+    // Careful -- Phi overloads arithmetic operators and will wrap around each step of a calculation,
+    // so use casts to prevent intermediate value wrap-arounds.
+    float phiTmp = static_cast<float>(volumes.back()->maxPhi()) - static_cast<float>(phi0) + resolution;
+    const float phiMax = Geom::Phi0To2pi<float>(phiTmp); // Ensure 0-2pi
+
+    cout << "volumes size = " << volumes.size();
+    cout << ", phi0 = " << phi0 << ", volumes.back()->maxPhi() = " << volumes.back()->maxPhi();
+    cout << ", phiMin = " << phiMin << ", phiMax = " << phiMax;
+    cout << ", int((phiMax - phiMin) / resolution) + 1 = " << int((phiMax - phiMin) / resolution) + 1
+      << endl;
     ClusterizingHistogram hisPhi(int((phiMax - phiMin) / resolution) + 1, phiMin, phiMax);
 
     handles::const_iterator first = volumes.begin();
