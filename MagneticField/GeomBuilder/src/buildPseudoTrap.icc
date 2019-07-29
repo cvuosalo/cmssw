@@ -1,5 +1,6 @@
 /*
  *  Compute parameters for a pseudotrapezoid .
+ *  NOTE: The pseudotrapezoid is no longer needed or support for DD4hep.
  *  For pseudotraps the refPlane is parallel to beam line; transformation:
  *
  *  Global(for vol at pi/2)    Local 
@@ -15,7 +16,8 @@ void volumeHandle::buildPseudoTrap() {
 
   DDPseudoTrap ptrap(solid);
 
-  // Change lengths from Geant units (mm) to CMS units (cm)
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
   double halfZ = convertUnits(ptrap.halfZ());
   double x1 = convertUnits(ptrap.x1());
   double x2 = convertUnits(ptrap.x2());

@@ -12,7 +12,8 @@ void volumeHandle::buildCons() {
   DDCons cons(solid);
 
 
-  // Change lengths from Geant units (mm) to CMS units (cm)
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
   double zhalf = convertUnits(cons.zhalf());
   double rInMinusZ = convertUnits(cons.rInMinusZ());
   double rOutMinusZ = convertUnits(cons.rOutMinusZ());

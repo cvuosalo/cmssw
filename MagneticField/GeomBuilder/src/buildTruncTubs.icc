@@ -14,6 +14,8 @@ void volumeHandle::buildTruncTubs() {
 
   DDTruncTubs tubs(solid);
 
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
   double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
   double rIn = convertUnits(tubs.rIn());                // inner radius
   double rOut = convertUnits(tubs.rOut());              // outer radius

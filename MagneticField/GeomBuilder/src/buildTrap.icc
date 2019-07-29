@@ -9,7 +9,8 @@ void volumeHandle::buildTrap() {
 
   DDTrap trap(solid);  //FIXME
 
-  // Change lengths from Geant units (mm) to CMS units (cm)
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
   double x1 = convertUnits(trap.x1());
   double x2 = convertUnits(trap.x2());
   double x3 = convertUnits(trap.x3());

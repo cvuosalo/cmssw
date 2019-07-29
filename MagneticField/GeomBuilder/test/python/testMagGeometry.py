@@ -28,19 +28,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.magfield = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-        'Geometry/CMSCommonData/data/cms.xml', 
-        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
-        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
-        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
-        'Geometry/CMSCommonData/data/materials.xml'),
-    rootNodeName = cms.string('cmsMagneticField:MAGF')
-)
-
-# avoid interference with EmptyESSource in uniformMagneticField.cfi
-process.es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
-
 
 process.ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldProducer",
     version = cms.string('OAE_1103l_071212'),
