@@ -49,8 +49,6 @@ namespace magneticfield {
     void buildTubs();
     // Build the surfaces for a ddcons shape
     void buildCons();
-    // Build the surfaces for a ddpseudotrap shape
-    void buildPseudoTrap();
     // Build the surfaces for a ddtrunctubs shape
     void buildTruncTubs();
 
