@@ -51,7 +51,7 @@ void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventS
 
   //FIXME: the region to be tested is specified inside.
   // exe.testFindVolume(10000000);
-  exe.testFindVolume(10);
+  exe.testFindVolume(1000);
 
   // Test that random points are inside one and only one volume
   // exe.testInside(100000,0.03);
