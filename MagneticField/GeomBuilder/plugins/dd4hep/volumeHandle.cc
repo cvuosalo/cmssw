@@ -70,9 +70,6 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
     case DDSolidShape::ddtrunctubs:
       buildTruncTubs();
       break;
-    case DDSolidShape::ddpseudotrap:
-      buildPseudoTrap();
-      break;
     default:
       LogError("magneticfield::volumeHandle") << "ctor: Unexpected shape_ # " <<
       static_cast<int>(shape_) << " for vol " << name;
@@ -165,9 +162,12 @@ void volumeHandle::referencePlane(const DDFilteredView &fv) {
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0., 0., 1.);  // Local direction of the axis along global Z
+
+    /* Preserve in case pseudotrap is needed again
     if (shape_ == DDSolidShape::ddpseudotrap) {
       globalZdir = LocalVector(0., 1., 0.);
     }
+    */
     if (refPlane->toGlobal(globalZdir).z() < 0.) {
       globalZdir = -globalZdir;
     }
@@ -209,5 +209,4 @@ inline constexpr NumType convertUnits(NumType centimeters)
 #include "MagneticField/GeomBuilder/src/buildTrap.icc"
 #include "MagneticField/GeomBuilder/src/buildTubs.icc"
 #include "MagneticField/GeomBuilder/src/buildCons.icc"
-#include "MagneticField/GeomBuilder/src/buildPseudoTrap.icc"
 #include "MagneticField/GeomBuilder/src/buildTruncTubs.icc"
