@@ -19,20 +19,16 @@ void volumeHandle::buildTruncTubs() {
   double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
   double rIn = convertUnits(tubs.rIn());                // inner radius
   double rOut = convertUnits(tubs.rOut());              // outer radius
-  double startPhi = tubs.startPhi();                                             // angular start of the tube-section
-  double deltaPhi = tubs.deltaPhi();                                             // angular span of the tube-section
+  double startPhi = tubs.startPhi();                    // angular start of the tube-section
+  double deltaPhi = tubs.deltaPhi();                    // angular span of the tube-section
   double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
   double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
-  bool cutInside = tubs.cutInside();                                             // true, if truncation is on the inner side of the tube-section
+  bool cutInside = tubs.cutInside();                    // true, if truncation is on the inner side of the tube-section
 
-  LogDebug("magneticfield::volumeHandle") << " zhalf      " << zhalf
-                                          << "\n rIn        " << rIn
-                                          << "\n rOut       " << rOut
-                                          << "\n startPhi   " << startPhi
-                                          << "\n deltaPhi   " << deltaPhi
-                                          << "\n cutAtStart " << cutAtStart
-                                          << "\n cutAtDelta " << cutAtDelta
-                                          << "\n cutInside  " << cutInside;
+  LogDebug("magneticfield::volumeHandle")
+      << " zhalf      " << zhalf << "\n rIn        " << rIn << "\n rOut       " << rOut << "\n startPhi   " << startPhi
+      << "\n deltaPhi   " << deltaPhi << "\n cutAtStart " << cutAtStart << "\n cutAtDelta " << cutAtDelta
+      << "\n cutInside  " << cutInside;
 
   //
   //  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));

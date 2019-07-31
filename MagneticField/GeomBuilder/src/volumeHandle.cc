@@ -32,8 +32,7 @@ using namespace SurfaceOrientation;
 using namespace std;
 
 MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi, bool debugVal)
-    : magneticfield::BaseVolumeHandle(debugVal)
-{
+    : magneticfield::BaseVolumeHandle(debugVal) {
   name = fv.logicalPart().name().name();
   copyno = fv.copyno();
   solid = fv.logicalPart().solid();
@@ -220,7 +219,6 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   }
 }
 
-
 std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
   std::vector<VolumeSide> result;
   for (int i = 0; i < 6; ++i) {
@@ -238,7 +236,6 @@ std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
   }
   return result;
 }
-
 
 #include "DataFormats/Math/interface/GeantUnits.h"
 

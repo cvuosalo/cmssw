@@ -107,7 +107,6 @@ bLayer::bLayer(handles::const_iterator begin, handles::const_iterator end, bool 
     std::cout << "-----------------------" << std::endl;
 }
 
-
 int bLayer::bin(int i) const {
   i = i % size;
   return (i >= 0 ? i : i + size);

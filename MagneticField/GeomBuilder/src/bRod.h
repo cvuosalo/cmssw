@@ -32,7 +32,7 @@ namespace magneticfield {
     std::vector<bSlab> slabs;
     handles volumes;  // pointers to all volumes in the rod
     mutable MagBRod* mrod;
-    bool debug; // Allow assignment from other bRod objects
+    bool debug;  // Allow assignment from other bRod objects
   };
 }  // namespace magneticfield
 

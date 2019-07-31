@@ -6,7 +6,6 @@
 #include "DD4hep/Shapes.h"
 #include <TGeoBBox.h>
 
-
 using namespace cms;
 using namespace cms::dd;
 using namespace angle_units::operators;
@@ -149,14 +148,15 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
     // Limit to range -pi to pi
     Geom::NormalizeWrapper<double, Geom::MinusPiToPi>::normalize(startPhi_);
 
-    dd4hep::Rotation3D cutRotation(params[6], params[7], params[8],
-      params[9], params[10], params[11], params[12], params[13], params[14]);
+    dd4hep::Rotation3D cutRotation(
+        params[6], params[7], params[8], params[9], params[10], params[11], params[12], params[13], params[14]);
     double translation = params[15];
     DD3Vector xUnitVec(1., 0., 0.);
     DD3Vector rotatedVec = cutRotation(xUnitVec);
     double cosAlpha = xUnitVec.Dot(rotatedVec);
     double sinAlpha = sqrt(1. - cosAlpha * cosAlpha);
-    if (sinAlpha == 0.) sinAlpha = 1.; // Prevent divide by 0
+    if (sinAlpha == 0.)
+      sinAlpha = 1.;  // Prevent divide by 0
     cutInside_ = true;
     cutAtStart_ = translation + (rOut_ / sinAlpha);
     if (cutAtStart_ > rOut_ || cutAtStart_ < 0.) {

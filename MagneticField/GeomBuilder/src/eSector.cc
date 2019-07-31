@@ -73,7 +73,6 @@ eSector::eSector(handles::const_iterator begin, handles::const_iterator end, boo
   // FIXME: Check that all layers have the same dz?.
 }
 
-
 MagESector* eSector::buildMagESector() const {
   if (msector == nullptr) {
     vector<MagELayer*> mLayers;

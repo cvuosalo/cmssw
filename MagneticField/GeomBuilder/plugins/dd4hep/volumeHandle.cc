@@ -33,12 +33,8 @@ using namespace cms;
 using namespace cms::dd;
 using namespace edm;
 
-
-volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal) :
-  BaseVolumeHandle(debugVal),
-  shape_(getCurrentShape(fv)),
-  solid(fv)
-{
+volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal)
+    : BaseVolumeHandle(debugVal), shape_(getCurrentShape(fv)), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
   expand = expand2Pi;
@@ -71,8 +67,8 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
       buildTruncTubs();
       break;
     default:
-      LogError("magneticfield::volumeHandle") << "ctor: Unexpected shape_ # " <<
-      static_cast<int>(shape_) << " for vol " << name;
+      LogError("magneticfield::volumeHandle")
+          << "ctor: Unexpected shape_ # " << static_cast<int>(shape_) << " for vol " << name;
   }
 
   // Get material for this volume
@@ -200,9 +196,8 @@ std::vector<VolumeSide> volumeHandle::sides() const {
 // For the old DD, another version of this function converts mm to cm.
 
 template <class NumType>
-inline constexpr NumType convertUnits(NumType centimeters)
-{
-   return (centimeters);
+inline constexpr NumType convertUnits(NumType centimeters) {
+  return (centimeters);
 }
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"

@@ -38,7 +38,7 @@ namespace magneticfield {
     std::vector<bRod> rods;  // the rods in this layer
     handles volumes;         // pointers to all volumes in the sector
     mutable MagBSector* msector;
-    bool debug; // Allow assignment from other bSector objects
+    bool debug;  // Allow assignment from other bSector objects
   };
 }  // namespace magneticfield
 

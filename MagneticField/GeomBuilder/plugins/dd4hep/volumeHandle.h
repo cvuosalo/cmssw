@@ -16,28 +16,26 @@
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 #include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
 
-
 namespace magneticfield {
 
   typedef const char* ShapeType;
 
-  class volumeHandle  : public BaseVolumeHandle {
+  class volumeHandle : public BaseVolumeHandle {
   public:
     volumeHandle(const cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
 
+    // Disallow Default/copy ctor & assignment op.
+    // (we want to handle only pointers!!!)
+    volumeHandle(const volumeHandle& v) = delete;
+    volumeHandle operator=(const volumeHandle& v) = delete;
+
     // Shape at initialization
     DDSolidShape shape() const override { return (shape_); }
-   
 
     /// The surfaces and they orientation, as required to build a MagVolume.
     std::vector<VolumeSide> sides() const override;
 
   private:
-    // Disallow Default/copy ctor & assignment op.
-    // (we want to handle only pointers!!!)
-    volumeHandle(const volumeHandle& v) = delete;
-    volumeHandle operator =(const volumeHandle& v) = delete;
-
     // initialise the refPlane
     void referencePlane(const cms::DDFilteredView& fv);
 

@@ -16,7 +16,6 @@
 using namespace SurfaceOrientation;
 using namespace magneticfield;
 
-
 //The ctor is in charge of finding slabs inside the rod.
 bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debugVal)
     : volumes(begin, end), mrod(nullptr), debug(debugVal) {

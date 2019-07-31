@@ -10,7 +10,6 @@
  *  \author N. Amapane - INFN Torino
  */
 
-
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
@@ -28,6 +27,10 @@ namespace magneticfield {
     typedef SurfaceOrientation::GlobalFace Sides;
 
     BaseVolumeHandle(bool debugVal = false);
+
+    // Disallow Default/copy ctor
+    // (we want to handle only pointers!!!)
+    BaseVolumeHandle(const BaseVolumeHandle& v) = delete;
 
     virtual ~BaseVolumeHandle();
 
@@ -111,10 +114,6 @@ namespace magneticfield {
     virtual DDSolidShape shape() const = 0;
 
   protected:
-    // Disallow Default/copy ctor & assignment op.
-    // (we want to handle only pointers!!!)
-    BaseVolumeHandle(const BaseVolumeHandle& v) = delete;
-
     typedef ConstReferenceCountingPointer<Surface> RCPS;
 
     // The volume's six surfaces.
@@ -215,6 +214,6 @@ namespace magneticfield {
       return false;
     }
   };
-}
+}  // namespace magneticfield
 
 #endif

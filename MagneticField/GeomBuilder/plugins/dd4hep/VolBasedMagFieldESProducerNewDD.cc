@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 
-
 using namespace cms;
 using namespace std;
 using namespace magneticfield;
@@ -36,13 +35,13 @@ namespace magneticfield {
   public:
     VolBasedMagFieldESProducerNewDD(const edm::ParameterSet& iConfig);
 
-    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
-
-  private:
     // forbid copy ctor and assignment op.
     VolBasedMagFieldESProducerNewDD(const VolBasedMagFieldESProducerNewDD&) = delete;
     const VolBasedMagFieldESProducerNewDD& operator=(const VolBasedMagFieldESProducerNewDD&) = delete;
 
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
+
+  private:
     edm::ParameterSet pset_;
     const bool debug_;
     const bool useParametrizedTrackerField_;
@@ -54,16 +53,13 @@ namespace magneticfield {
   };
 }  // namespace magneticfield
 
-
-
 VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::ParameterSet& iConfig)
-    : pset_{iConfig}, 
+    : pset_{iConfig},
       debug_{iConfig.getUntrackedParameter<bool>("debugBuilder", false)},
       useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")},
-      tag_{iConfig.getParameter<edm::ESInputTag>("DDDetector")}
-{
+      tag_{iConfig.getParameter<edm::ESInputTag>("DDDetector")} {
   LogTrace("VolBasedMagFieldESProducerNewDD") << "trace:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
   edm::LogInfo("VolBasedMagFieldESProducerNewDD") << "info:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
 

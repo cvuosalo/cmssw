@@ -11,7 +11,6 @@ void volumeHandle::buildCons() {
 
   DDCons cons(solid);
 
-
   // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
   // convertUnits should be defined appropriately.
   double zhalf = convertUnits(cons.zhalf());

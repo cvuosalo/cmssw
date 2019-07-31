@@ -25,16 +25,15 @@ using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 
-BaseVolumeHandle::BaseVolumeHandle(bool debugVal) :
-  magVolume(nullptr),
-  masterSector(1),
-  theRN(0.),
-  theRMin(0.),
-  theRMax(0.),
-  refPlane(nullptr),
-  isIronFlag(false),
-  debug(debugVal)
-{}
+BaseVolumeHandle::BaseVolumeHandle(bool debugVal)
+    : magVolume(nullptr),
+      masterSector(1),
+      theRN(0.),
+      theRMin(0.),
+      theRMax(0.),
+      refPlane(nullptr),
+      isIronFlag(false),
+      debug(debugVal) {}
 
 BaseVolumeHandle::~BaseVolumeHandle() {
   if (refPlane != nullptr) {
@@ -43,7 +42,7 @@ BaseVolumeHandle::~BaseVolumeHandle() {
   }
 }
 
-const Surface::GlobalPoint& BaseVolumeHandle::center() const { return center_; }
+const Surface::GlobalPoint &BaseVolumeHandle::center() const { return center_; }
 
 void BaseVolumeHandle::buildPhiZSurf(double startPhi, double deltaPhi, double zhalf, double rCentr) {
   // This is 100% equal for cons and tubs!!!
@@ -214,9 +213,9 @@ bool BaseVolumeHandle::setSurface(const Surface &s1, Sides which_side) {
   return false;  // let the compiler be happy
 }
 
-const Surface& BaseVolumeHandle::surface(Sides which_side) const { return *(surfaces[which_side]); }
+const Surface &BaseVolumeHandle::surface(Sides which_side) const { return *(surfaces[which_side]); }
 
-const Surface& BaseVolumeHandle::surface(int which_side) const {
+const Surface &BaseVolumeHandle::surface(int which_side) const {
   assert(which_side >= 0 && which_side < 6);
   return *(surfaces[which_side]);
 }

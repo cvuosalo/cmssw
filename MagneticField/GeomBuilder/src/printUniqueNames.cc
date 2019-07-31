@@ -6,9 +6,7 @@
 
 using namespace std;
 
-void magneticfield::printUniqueNames(handles::const_iterator begin,
-                                                          handles::const_iterator end,
-                                                          bool uniq) {
+void magneticfield::printUniqueNames(handles::const_iterator begin, handles::const_iterator end, bool uniq) {
   std::vector<std::string> names;
   for (handles::const_iterator i = begin; i != end; ++i) {
     if (uniq)

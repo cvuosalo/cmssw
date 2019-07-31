@@ -20,7 +20,6 @@
 
 #include <iostream>
 
-
 using namespace std;
 using namespace edm;
 
@@ -118,7 +117,8 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
         ++errCnt;
         if (errCnt < 3)
           continue;
-        else break;
+        else
+          break;
       }
       if ((*v)->inside(gp, tolerance)) {
         found = (*v);
@@ -133,7 +133,8 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
         ++errCnt;
         if (errCnt < 3)
           continue;
-        else break;
+        else
+          break;
       }
       if ((*v)->inside(gp, tolerance)) {
         found = (*v);
@@ -171,14 +172,15 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
 
   } else {  // Endcaps
     Geom::Phi<float> phi = gp.phi();
-    if (theEndcapBinFinder != nullptr && theESectors.size() > 0) {
+    if (theEndcapBinFinder != nullptr && !theESectors.empty()) {
       int bin = theEndcapBinFinder->binIndex(phi);
       if (verbose::debugOut)
         cout << "Trying endcap sector at phi " << theESectors[bin]->minPhi() << " " << phi << endl;
       result = theESectors[bin]->findVolume(gp, tolerance);
       if (verbose::debugOut)
         cout << "***In guessed esector " << (result == nullptr ? " failed " : " OK ") << endl;
-    } else edm::LogError("MagGeometry") << "Endcap empty";
+    } else
+      edm::LogError("MagGeometry") << "Endcap empty";
   }
 
   if (result == nullptr && tolerance < 0.0001) {

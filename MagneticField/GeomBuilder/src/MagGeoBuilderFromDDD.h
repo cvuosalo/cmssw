@@ -26,7 +26,7 @@ namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
   class VolumeBasedMagneticFieldESProducerFromDB;
   class AutoMagneticFieldESProducer;
-  class BaseVolumeHandle; // Needs to be public to share code with DD4hep
+  class BaseVolumeHandle;  // Needs to be public to share code with DD4hep
   typedef std::vector<BaseVolumeHandle*> handles;
 }  // namespace magneticfield
 
@@ -56,10 +56,9 @@ public:
   float maxZ() const;
 
   // Temporary container to manipulate volumes and their surfaces.
-  class volumeHandle; // Needs to be public to share code with DD4hep
+  class volumeHandle;  // Needs to be public to share code with DD4hep
 
 private:
-
   // Build the geometry.
   //virtual void build();
   virtual void build(const DDCompactView& cpv);
@@ -78,7 +77,8 @@ private:
   void buildInterpolator(const volumeHandle* vol, std::map<std::string, MagProviderInterpol*>& interpolators);
 
   // Build all MagVolumes setting the MagProviderInterpol
-  void buildMagVolumes(const magneticfield::handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);
+  void buildMagVolumes(const magneticfield::handles& volumes,
+                       std::map<std::string, MagProviderInterpol*>& interpolators);
 
   // Print checksums for surfaces.
   void summary(magneticfield::handles& volumes);

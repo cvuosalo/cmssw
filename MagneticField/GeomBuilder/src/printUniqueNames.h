@@ -7,6 +7,6 @@ namespace magneticfield {
 
   /// Just for debugging...
   void printUniqueNames(handles::const_iterator begin, handles::const_iterator end, bool uniq = true);
-}
+}  // namespace magneticfield
 
 #endif

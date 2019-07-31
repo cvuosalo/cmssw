@@ -21,7 +21,6 @@
 #include <iostream>
 #include <vector>
 
-
 class MagBSlab;
 
 namespace magneticfield {
@@ -53,7 +52,7 @@ namespace magneticfield {
   private:
     handles volumes;  // pointers to all volumes in the slab
     mutable MagBSlab* mslab;
-    bool debug; // Allow assignment
+    bool debug;  // Allow assignment
   };
 }  // namespace magneticfield
 

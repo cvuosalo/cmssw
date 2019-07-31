@@ -9,8 +9,9 @@
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class IdealMagneticFieldRecord : public edm::eventsetup::DependentRecordImplementation<
-                                     IdealMagneticFieldRecord,
-                                     boost::mpl::vector<MFGeometryFileRcd, RunInfoRcd, GeometryFileRcd, MagFieldConfigRcd> > {};
+class IdealMagneticFieldRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          IdealMagneticFieldRecord,
+          boost::mpl::vector<MFGeometryFileRcd, RunInfoRcd, GeometryFileRcd, MagFieldConfigRcd> > {};
 
 #endif

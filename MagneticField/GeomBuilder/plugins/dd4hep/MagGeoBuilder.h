@@ -35,7 +35,6 @@ namespace cms {
 
   class MagGeoBuilder {
   public:
-
     using handles = magneticfield::handles;
 
     MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false);
@@ -67,7 +66,6 @@ namespace cms {
 
   private:
     typedef ConstReferenceCountingPointer<Surface> RCPS;
-
 
     // Build interpolator for the volume with "correct" rotation
     void buildInterpolator(const magneticfield::volumeHandle* vol,

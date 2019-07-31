@@ -20,7 +20,6 @@ using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 
-
 // Default ctor needed to have arrays.
 bSector::bSector() : debug(false) {}
 
@@ -54,14 +53,13 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
     // Careful -- Phi overloads arithmetic operators and will wrap around each step of a calculation,
     // so use casts to prevent intermediate value wrap-arounds.
     float phiTmp = static_cast<float>(volumes.back()->maxPhi()) - static_cast<float>(phi0) + resolution;
-    const float phiMax = angle0to2pi::make0To2pi(phiTmp); // Ensure 0-2pi
+    const float phiMax = angle0to2pi::make0To2pi(phiTmp);  // Ensure 0-2pi
 
     if (debug) {
       cout << "volumes size = " << volumes.size();
       cout << ", phi0 = " << phi0 << ", volumes.back()->maxPhi() = " << volumes.back()->maxPhi();
       cout << ", phiMin = " << phiMin << ", phiMax = " << phiMax;
-      cout << ", int((phiMax - phiMin) / resolution) + 1 = " << int((phiMax - phiMin) / resolution) + 1
-        << endl;
+      cout << ", int((phiMax - phiMin) / resolution) + 1 = " << int((phiMax - phiMin) / resolution) + 1 << endl;
     }
     ClusterizingHistogram hisPhi(int((phiMax - phiMin) / resolution) + 1, phiMin, phiMax);
 

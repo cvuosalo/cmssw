@@ -26,17 +26,17 @@ class MagGeoBuilderFromDDD::volumeHandle : public magneticfield::BaseVolumeHandl
 public:
   volumeHandle(const DDExpandedView& fv, bool expand2Pi = false, bool debugVal = false);
 
+  // Disallow Default/copy ctor & assignment op.
+  // (we want to handle only pointers!!!)
+  volumeHandle(const volumeHandle& v) = delete;
+  volumeHandle operator=(const volumeHandle& v) = delete;
+
   DDSolidShape shape() const override { return solid.shape(); }
 
   /// The surfaces and they orientation, as required to build a MagVolume.
   std::vector<VolumeSide> sides() const override;
 
 private:
-  // Disallow Default/copy ctor & assignment op.
-  // (we want to handle only pointers!!!)
-  volumeHandle(const volumeHandle& v) = delete;
-  volumeHandle operator=(const volumeHandle& v) = delete;
-
   // initialise the refPlane
   void referencePlane(const DDExpandedView& fv);
 
@@ -55,8 +55,6 @@ private:
 
   // the DDSolid.
   DDSolid solid;
-
 };
-
 
 #endif
