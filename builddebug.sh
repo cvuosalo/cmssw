@@ -1,1 +1,0 @@
-../../builddebug.sh
