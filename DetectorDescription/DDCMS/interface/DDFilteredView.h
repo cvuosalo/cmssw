@@ -138,6 +138,10 @@ namespace cms {
     //! extract attribute string value
     std::string getString(std::string_view) const;
 
+    std::vector<int> navPos() {
+      return (history().copyNos);
+      } 
+
   private:
     bool accept(std::string_view);
     bool addPath(Node* const);

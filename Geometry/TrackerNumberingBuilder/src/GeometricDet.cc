@@ -4,8 +4,6 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include <cfloat>
 #include <vector>
 #include <string>
@@ -67,63 +65,58 @@ GeometricDet::~GeometricDet() { deleteComponents(); }
 
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     :  //
-      // Set by hand the _ddd
+      // Set by hand the ddd_
       //
-      _trans(fv->translation()),
-      _phi(_trans.Phi()),
-      _rho(_trans.Rho()),
-      _rot(fv->rotation()),
-      _shape(fv->shape()),
-      _ddname(fv->name()),
-      _type(type),
-      _params(fv->parameters()),
-      _radLength(getDouble("TrackerRadLength", *fv)),
-      _xi(getDouble("TrackerXi", *fv)),
-      _pixROCRows(getDouble("PixelROCRows", *fv)),
-      _pixROCCols(getDouble("PixelROCCols", *fv)),
-      _pixROCx(getDouble("PixelROC_X", *fv)),
-      _pixROCy(getDouble("PixelROC_Y", *fv)),
-      _stereo(getString("TrackerStereoDetectors", *fv) == strue),
-      _siliconAPVNum(getDouble("SiliconAPVNumber", *fv)) {
-  //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
+      trans_(fv->translation()),
+      phi_(trans_.Phi()),
+      rho_(trans_.Rho()),
+      rot_(fv->rotation()),
+      shape_(fv->shape()),
+      ddname_(fv->name()),
+      type_(type),
+      params_(fv->parameters()),
+      radLength_(getDouble("TrackerRadLength", *fv)),
+      xi_(getDouble("TrackerXi", *fv)),
+      pixROCRows_(getDouble("PixelROCRows", *fv)),
+      pixROCCols_(getDouble("PixelROCCols", *fv)),
+      pixROCx_(getDouble("PixelROC_X", *fv)),
+      pixROCy_(getDouble("PixelROC_Y", *fv)),
+      stereo_(getString("TrackerStereoDetectors", *fv) == strue),
+      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)) {
+  //  workaround instead of this at initialization ddd_(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();
-  _ddd = nav_type(nt.begin(), nt.end());
+  ddd_ = nav_type(nt.begin(), nt.end());
 }
 
-GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
-    :  //
-      // Set by hand the _ddd
-      //
-      _trans(fv->translation()),
-      _phi(_trans.Phi()),
-      _rho(_trans.Rho()),
-      _rot(fv->rotation()),
-      _shape(DDSolidShape(static_cast<int>(fv->shape()))),
-      _ddd(),
-      _ddname(fv->name()),
-      _type(type),
-      _params(fv->parameters()),
-      _radLength(fv->getDouble("TrackerRadLength")),
-      _xi(fv->getDouble("TrackerXi")),
-      _pixROCRows(fv->getDouble("PixelROCRows")),
-      _pixROCCols(fv->getDouble("PixelROCCols")),
-      _pixROCx(fv->getDouble("PixelROC_X")),
-      _pixROCy(fv->getDouble("PixelROC_Y")),
-      _stereo(fv->getString("TrackerStereoDetectors") == strue),
-      _siliconAPVNum(fv->getDouble("SiliconAPVNumber")) {
-  //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
-  // FIXME:
-  // const DDFilteredView::nav_type& nt = fv->navPos();
-  // _ddd = nav_type(nt.begin(), nt.end());
+GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type) :
+      trans_(fv->translation()),
+      phi_(trans_.Phi()),
+      rho_(trans_.Rho()),
+      shape_(DDSolidShape(static_cast<int>(fv->shape()))),
+      ddname_(fv->name()),
+      type_(type),
+      params_(fv->parameters()),
+      radLength_(fv->getDouble("TrackerRadLength")),
+      xi_(fv->getDouble("TrackerXi")),
+      pixROCRows_(fv->getDouble("PixelROCRows")),
+      pixROCCols_(fv->getDouble("PixelROCCols")),
+      pixROCx_(fv->getDouble("PixelROC_X")),
+      pixROCy_(fv->getDouble("PixelROC_Y")),
+      stereo_(fv->getString("TrackerStereoDetectors") == strue),
+      siliconAPVNum_(fv->getDouble("SiliconAPVNumber")) {
+  fv->rot(rot_);
+
+  const std::vector<int> nt = fv->navPos(); // *** CHECK IT WORKS
+  ddd_ = nav_type(nt.begin(), nt.end());
 }
 
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.
 GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType type)
-    : _trans(onePGD._x, onePGD._y, onePGD._z),
-      _phi(onePGD._phi),  //_trans.Phi()),
-      _rho(onePGD._rho),  //_trans.Rho()),
-      _rot(onePGD._a11,
+    : trans_(onePGD._x, onePGD._y, onePGD._z),
+      phi_(onePGD._phi),  //trans_.Phi()),
+      rho_(onePGD._rho),  //trans_.Rho()),
+      rot_(onePGD._a11,
            onePGD._a12,
            onePGD._a13,
            onePGD._a21,
@@ -132,54 +125,55 @@ GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType 
            onePGD._a31,
            onePGD._a32,
            onePGD._a33),
-      _shape(static_cast<DDSolidShape>(onePGD._shape)),
-      _ddd(),
-      _ddname(onePGD._name),
-      _type(type),
-      _params(),
-      _geographicalID(onePGD._geographicalID),
-      _radLength(onePGD._radLength),
-      _xi(onePGD._xi),
-      _pixROCRows(onePGD._pixROCRows),
-      _pixROCCols(onePGD._pixROCCols),
-      _pixROCx(onePGD._pixROCx),
-      _pixROCy(onePGD._pixROCy),
-      _stereo(onePGD._stereo),
-      _siliconAPVNum(onePGD._siliconAPVNum) {
-  if (onePGD._shape == 1 || onePGD._shape == 3) {  //The parms vector is neede only in the case of box or trap shape
-    _params.reserve(11);
-    _params.emplace_back(onePGD._params0);
-    _params.emplace_back(onePGD._params1);
-    _params.emplace_back(onePGD._params2);
-    _params.emplace_back(onePGD._params3);
-    _params.emplace_back(onePGD._params4);
-    _params.emplace_back(onePGD._params5);
-    _params.emplace_back(onePGD._params6);
-    _params.emplace_back(onePGD._params7);
-    _params.emplace_back(onePGD._params8);
-    _params.emplace_back(onePGD._params9);
-    _params.emplace_back(onePGD._params10);
+      shape_(static_cast<DDSolidShape>(onePGD._shape)),
+      ddd_(),
+      ddname_(onePGD._name),
+      type_(type),
+      params_(),
+      geographicalID_(onePGD._geographicalID),
+      radLength_(onePGD._radLength),
+      xi_(onePGD._xi),
+      pixROCRows_(onePGD._pixROCRows),
+      pixROCCols_(onePGD._pixROCCols),
+      pixROCx_(onePGD._pixROCx),
+      pixROCy_(onePGD._pixROCy),
+      stereo_(onePGD._stereo),
+      siliconAPVNum_(onePGD._siliconAPVNum) {
+  if (shape_ == DDSolidShape::ddbox || shape_ == DDSolidShape::ddtrap) {
+  //The params vector is needed only in the case of box or trap shape
+    params_.reserve(11);
+    params_.emplace_back(onePGD._params0);
+    params_.emplace_back(onePGD._params1);
+    params_.emplace_back(onePGD._params2);
+    params_.emplace_back(onePGD._params3);
+    params_.emplace_back(onePGD._params4);
+    params_.emplace_back(onePGD._params5);
+    params_.emplace_back(onePGD._params6);
+    params_.emplace_back(onePGD._params7);
+    params_.emplace_back(onePGD._params8);
+    params_.emplace_back(onePGD._params9);
+    params_.emplace_back(onePGD._params10);
   }
 
-  _ddd.reserve(onePGD._numnt);
-  _ddd.emplace_back(onePGD._nt0);
-  _ddd.emplace_back(onePGD._nt1);
-  _ddd.emplace_back(onePGD._nt2);
-  _ddd.emplace_back(onePGD._nt3);
+  ddd_.reserve(onePGD._numnt);
+  ddd_.emplace_back(onePGD._nt0);
+  ddd_.emplace_back(onePGD._nt1);
+  ddd_.emplace_back(onePGD._nt2);
+  ddd_.emplace_back(onePGD._nt3);
   if (onePGD._numnt > 4) {
-    _ddd.emplace_back(onePGD._nt4);
+    ddd_.emplace_back(onePGD._nt4);
     if (onePGD._numnt > 5) {
-      _ddd.emplace_back(onePGD._nt5);
+      ddd_.emplace_back(onePGD._nt5);
       if (onePGD._numnt > 6) {
-        _ddd.emplace_back(onePGD._nt6);
+        ddd_.emplace_back(onePGD._nt6);
         if (onePGD._numnt > 7) {
-          _ddd.emplace_back(onePGD._nt7);
+          ddd_.emplace_back(onePGD._nt7);
           if (onePGD._numnt > 8) {
-            _ddd.emplace_back(onePGD._nt8);
+            ddd_.emplace_back(onePGD._nt8);
             if (onePGD._numnt > 9) {
-              _ddd.emplace_back(onePGD._nt9);
+              ddd_.emplace_back(onePGD._nt9);
               if (onePGD._numnt > 10) {
-                _ddd.emplace_back(onePGD._nt10);
+                ddd_.emplace_back(onePGD._nt10);
               }
             }
           }
@@ -202,20 +196,20 @@ void GeometricDet::deepComponents(ConstGeometricDetContainer& cont) const {
   if (isLeaf())
     cont.emplace_back(this);
   else
-    std::for_each(_container.begin(), _container.end(), [&](const GeometricDet* iDet) { iDet->deepComponents(cont); });
+    std::for_each(container_.begin(), container_.end(), [&](const GeometricDet* iDet) { iDet->deepComponents(cont); });
 }
 
 void GeometricDet::addComponents(GeometricDetContainer const& cont) {
-  _container.reserve(_container.size() + cont.size());
-  std::copy(cont.begin(), cont.end(), back_inserter(_container));
+  container_.reserve(container_.size() + cont.size());
+  std::copy(cont.begin(), cont.end(), back_inserter(container_));
 }
 
 void GeometricDet::addComponents(ConstGeometricDetContainer const& cont) {
-  _container.reserve(_container.size() + cont.size());
-  std::copy(cont.begin(), cont.end(), back_inserter(_container));
+  container_.reserve(container_.size() + cont.size());
+  std::copy(cont.begin(), cont.end(), back_inserter(container_));
 }
 
-void GeometricDet::addComponent(GeometricDet* det) { _container.emplace_back(det); }
+void GeometricDet::addComponent(GeometricDet* det) { container_.emplace_back(det); }
 
 namespace {
   struct Deleter {
@@ -224,19 +218,20 @@ namespace {
 }  // namespace
 
 void GeometricDet::deleteComponents() {
-  std::for_each(_container.begin(), _container.end(), Deleter());
-  _container.clear();
+  std::for_each(container_.begin(), container_.end(), Deleter());
+  container_.clear();
 }
 
 GeometricDet::Position GeometricDet::positionBounds() const {
-  Position _pos(float(_trans.x() / cm), float(_trans.y() / cm), float(_trans.z() / cm));
+  // Watch units. Is DD4hep now returning CMS units?
+  Position _pos(float(trans_.x()), float(trans_.y()), float(trans_.z()));
   return _pos;
 }
 
 GeometricDet::Rotation GeometricDet::rotationBounds() const {
   Translation x, y, z;
-  _rot.GetComponents(x, y, z);
-  Rotation _rotation(float(x.X()),
+  rot_.GetComponents(x, y, z);
+  Rotation theRotation(float(x.X()),
                      float(x.Y()),
                      float(x.Z()),
                      float(y.X()),
@@ -245,11 +240,11 @@ GeometricDet::Rotation GeometricDet::rotationBounds() const {
                      float(z.X()),
                      float(z.Y()),
                      float(z.Z()));
-  return _rotation;
+  return theRotation;
 }
 
 std::unique_ptr<Bounds> GeometricDet::bounds() const {
-  const std::vector<double>& par = _params;
+  const std::vector<double>& par = params_;
   TrackerShapeToBounds shapeToBounds;
-  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(_shape, par));
+  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(shape_, par));
 }

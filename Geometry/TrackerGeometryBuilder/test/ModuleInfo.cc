@@ -230,7 +230,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "Layer " << theLayer << " Ladder " << theLadder << "\t"
                << " module " << theModule << " " << name << "\t";
         if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
+          // Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
+          // parents no longer available
         } else {
           Output << " NO DDD Hierarchy available " << std::endl;
         }
@@ -264,7 +265,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel << "\t"
                << " module " << theModule << "\t" << name << "\t";
         if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
+          // Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name() << std::endl;
+          // parents no longer available
         } else {
           Output << " NO DDD Hierarchy available " << std::endl;
         }
@@ -297,7 +299,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "string " << theString[2] << "\t"
                << " module " << theModule << " " << name << "\t";
         if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // parents no longer available
         } else {
           Output << " NO DDD Hierarchy available ";
         }
@@ -333,7 +336,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "Disk " << theDisk << " Ring " << theRing << " " << part << "\t"
                << " module " << tTopo->tidModule(id) << "\t" << name << "\t";
         if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // parents no longer available
         } else {
           Output << " NO DDD Hierarchy available ";
         }
@@ -367,7 +371,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "Layer " << theLayer << "\t"
                << "rod " << tTopo->tobRod(id) << " module " << theModule << "\t" << name << "\t";
         if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // parents no longer available
         } else {
           Output << " NO DDD Hierarchy available ";
         }
@@ -416,7 +421,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "\t"
                << " module " << theModule << "\t" << name << "\t";
         if (fromDDD_ && printDDD_) {
-          Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // Output << "son of " << gdei->parents()[gdei->parents().size() - 3].logicalPart().name();
+          // parents no longer available
         } else {
           Output << " NO DDD Hierarchy available ";
         }

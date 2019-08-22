@@ -46,7 +46,7 @@ public:
    */
   void setGeographicalId(DetId id) { _geographicalId = id; }
   DetId geographicalId() const { return _geographicalId; }
-  GeoHistory const& parents() const { return _parents; }
+  // GeoHistory const& parents() const { return _parents; } // Can it be dropped?
   int copyno() const { return _copy; }
   double volume() const { return _volume; }
   double density() const { return _density; }
