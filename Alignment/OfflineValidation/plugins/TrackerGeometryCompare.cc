@@ -57,6 +57,8 @@
 #include <fstream>
 #include <sstream>
 
+class DDCompactView;
+
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
     : referenceTracker(nullptr),
       dummyTracker(nullptr),

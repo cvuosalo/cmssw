@@ -2,7 +2,6 @@
 #define Geometry_TrackerNumberingBuilder_GeometricDet_H
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
@@ -36,10 +35,8 @@ public:
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 
 #ifdef PoolAlloc
-  using GeoHistory = std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> >;
   using nav_type = std::vector<int, PoolAlloc<int> >;
 #else
-  using GeoHistory = std::vector<DDExpandedNode>;
     using nav_type = std::vector<int>;
 #endif
 
