@@ -153,9 +153,9 @@ dd4hep::Volume DDNamespace::addVolumeNS(dd4hep::Volume vol) const {
   dd4hep::Material m = vol.material();
   vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
-  const char* solidName = "Solid name is missing";
-  if (strlen(s.type()) > 0)  // Protect against seg fault
-    solidName = s.name();    // If s.type() is empty, s.name() will seg fault.
+  const char* solidName = "Invalid solid";
+  if (s.isValid())         // Protect against seg fault
+    solidName = s.name();  // If Solid is not valid, s.name() will seg fault.
   dd4hep::printout(m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
                    "+++ Add volumeNS:%-38s Solid:%-26s[%-16s] Material:%s",
@@ -173,9 +173,9 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   dd4hep::Material m = vol.material();
   //vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
-  const char* solidName = "Solid name is missing";
-  if (strlen(s.type()) > 0)  // Protect against seg fault
-    solidName = s.name();    // If s.type() is empty, s.name() will seg fault.
+  const char* solidName = "Invalid solid";
+  if (s.isValid())         // Protect against seg fault
+    solidName = s.name();  // If Solid is not valid, s.name() will seg fault.
   dd4hep::printout(m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
                    "+++ Add volume:%-38s as [%s] Solid:%-26s[%-16s] Material:%s",
